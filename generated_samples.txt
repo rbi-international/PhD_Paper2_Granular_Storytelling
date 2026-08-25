@@ -1,0 +1,33 @@
+EMOTION: Joy
+TEXT: <|startoftext|>  The old clock tower struck midnight, and I felt it hit the ground. 
+ `` That was amazing,'' said the boy sitting beside me in my classroom. He had a big smile on his face as he walked over to me with an enormous bag of candy. His eyes were red from crying, but they didn't show any sign that he'd lost control of himself or anything. I grabbed him by one arm and pulled him away from the kid who seemed completely oblivious about what just happened.
+
+EMOTION: Trust
+TEXT: <|startoftext|>  The old clock tower struck midnight, and the world stood still as it did for thousands of years.
+
+EMOTION: Fear
+TEXT: <|startoftext|>  The old clock tower struck midnight, and the man standing next to it smiled as he turned a few hours later. 
+ `` It's been n't too long since we last saw you,'' said an aged woman with grey hair that was parted into two braids. She wore glasses, but she looked more like someone who lived in the city than one of those people from another dimension.
+
+EMOTION: Surprise
+TEXT: <|startoftext|>  The old clock tower struck midnight, and the young man stood in front of it. 
+ `` Are you awake?'' he asked. 
+
+ He was still standing when the woman who had been his first girlfriend walked into him as if she were a stranger on their way to work or something; they smiled at each other for about five seconds before disappearing back into her apartment building's darkness like so many ghosts that have lived here since then: a dark room with only two windows which are closed but no one is there.'' There,''
+
+EMOTION: Sadness
+TEXT: <|startoftext|>  The old clock tower struck midnight, and I was alone. 
+ `` Let's go to the mall.'' 
+
+ So I said, not knowing what else he'd say. But a girl in a red dress came over, grabbed my hand as she ran into another store. She smiled at me with a smile that made it clear how much she loved her job. My heart leapt when we walked through some doors after shopping, but there were no words left for what had happened since our last visit. We passed by two tall black
+
+EMOTION: Disgust
+TEXT: <|startoftext|>  The old clock tower struck midnight, and the children were asleep. They had n't gone to bed yet, but they did have time for one last play before school began. 
+ `` I'm going out,'' said a voice from behind him as he passed by the glass door.
+
+EMOTION: Anger
+TEXT: <|startoftext|>  The old clock tower struck midnight, and the sun began to rise.
+
+EMOTION: Anticipation
+TEXT: <|startoftext|>  The old clock tower struck midnight, and it was now 8:35 AM.
+
