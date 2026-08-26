@@ -1,161 +1,161 @@
-prompt_id,lexicon_key,target_label,replicate,story_start,prompt_text,seed
-0,Joy,Joy,0,The,Emotion: Joy | Story: The,20260826
-1,Joy,Joy,1,The,Emotion: Joy | Story: The,20260827
-2,Joy,Joy,2,The,Emotion: Joy | Story: The,20260828
-3,Joy,Joy,3,The,Emotion: Joy | Story: The,20260829
-4,Joy,Joy,4,The,Emotion: Joy | Story: The,20260830
-5,Joy,Joy,5,The,Emotion: Joy | Story: The,20260831
-6,Joy,Joy,6,The,Emotion: Joy | Story: The,20260832
-7,Joy,Joy,7,The,Emotion: Joy | Story: The,20260833
-8,Joy,Joy,8,The,Emotion: Joy | Story: The,20260834
-9,Joy,Joy,9,The,Emotion: Joy | Story: The,20260835
-10,Joy,Joy,10,The,Emotion: Joy | Story: The,20260836
-11,Joy,Joy,11,The,Emotion: Joy | Story: The,20260837
-12,Joy,Joy,12,The,Emotion: Joy | Story: The,20260838
-13,Joy,Joy,13,The,Emotion: Joy | Story: The,20260839
-14,Joy,Joy,14,The,Emotion: Joy | Story: The,20260840
-15,Joy,Joy,15,The,Emotion: Joy | Story: The,20260841
-16,Joy,Joy,16,The,Emotion: Joy | Story: The,20260842
-17,Joy,Joy,17,The,Emotion: Joy | Story: The,20260843
-18,Joy,Joy,18,The,Emotion: Joy | Story: The,20260844
-19,Joy,Joy,19,The,Emotion: Joy | Story: The,20260845
-20,Trust,Trust,0,The,Emotion: Trust | Story: The,20260846
-21,Trust,Trust,1,The,Emotion: Trust | Story: The,20260847
-22,Trust,Trust,2,The,Emotion: Trust | Story: The,20260848
-23,Trust,Trust,3,The,Emotion: Trust | Story: The,20260849
-24,Trust,Trust,4,The,Emotion: Trust | Story: The,20260850
-25,Trust,Trust,5,The,Emotion: Trust | Story: The,20260851
-26,Trust,Trust,6,The,Emotion: Trust | Story: The,20260852
-27,Trust,Trust,7,The,Emotion: Trust | Story: The,20260853
-28,Trust,Trust,8,The,Emotion: Trust | Story: The,20260854
-29,Trust,Trust,9,The,Emotion: Trust | Story: The,20260855
-30,Trust,Trust,10,The,Emotion: Trust | Story: The,20260856
-31,Trust,Trust,11,The,Emotion: Trust | Story: The,20260857
-32,Trust,Trust,12,The,Emotion: Trust | Story: The,20260858
-33,Trust,Trust,13,The,Emotion: Trust | Story: The,20260859
-34,Trust,Trust,14,The,Emotion: Trust | Story: The,20260860
-35,Trust,Trust,15,The,Emotion: Trust | Story: The,20260861
-36,Trust,Trust,16,The,Emotion: Trust | Story: The,20260862
-37,Trust,Trust,17,The,Emotion: Trust | Story: The,20260863
-38,Trust,Trust,18,The,Emotion: Trust | Story: The,20260864
-39,Trust,Trust,19,The,Emotion: Trust | Story: The,20260865
-40,Fear,Fear,0,The,Emotion: Fear | Story: The,20260866
-41,Fear,Fear,1,The,Emotion: Fear | Story: The,20260867
-42,Fear,Fear,2,The,Emotion: Fear | Story: The,20260868
-43,Fear,Fear,3,The,Emotion: Fear | Story: The,20260869
-44,Fear,Fear,4,The,Emotion: Fear | Story: The,20260870
-45,Fear,Fear,5,The,Emotion: Fear | Story: The,20260871
-46,Fear,Fear,6,The,Emotion: Fear | Story: The,20260872
-47,Fear,Fear,7,The,Emotion: Fear | Story: The,20260873
-48,Fear,Fear,8,The,Emotion: Fear | Story: The,20260874
-49,Fear,Fear,9,The,Emotion: Fear | Story: The,20260875
-50,Fear,Fear,10,The,Emotion: Fear | Story: The,20260876
-51,Fear,Fear,11,The,Emotion: Fear | Story: The,20260877
-52,Fear,Fear,12,The,Emotion: Fear | Story: The,20260878
-53,Fear,Fear,13,The,Emotion: Fear | Story: The,20260879
-54,Fear,Fear,14,The,Emotion: Fear | Story: The,20260880
-55,Fear,Fear,15,The,Emotion: Fear | Story: The,20260881
-56,Fear,Fear,16,The,Emotion: Fear | Story: The,20260882
-57,Fear,Fear,17,The,Emotion: Fear | Story: The,20260883
-58,Fear,Fear,18,The,Emotion: Fear | Story: The,20260884
-59,Fear,Fear,19,The,Emotion: Fear | Story: The,20260885
-60,Surprise,Surprise,0,The,Emotion: Surprise | Story: The,20260886
-61,Surprise,Surprise,1,The,Emotion: Surprise | Story: The,20260887
-62,Surprise,Surprise,2,The,Emotion: Surprise | Story: The,20260888
-63,Surprise,Surprise,3,The,Emotion: Surprise | Story: The,20260889
-64,Surprise,Surprise,4,The,Emotion: Surprise | Story: The,20260890
-65,Surprise,Surprise,5,The,Emotion: Surprise | Story: The,20260891
-66,Surprise,Surprise,6,The,Emotion: Surprise | Story: The,20260892
-67,Surprise,Surprise,7,The,Emotion: Surprise | Story: The,20260893
-68,Surprise,Surprise,8,The,Emotion: Surprise | Story: The,20260894
-69,Surprise,Surprise,9,The,Emotion: Surprise | Story: The,20260895
-70,Surprise,Surprise,10,The,Emotion: Surprise | Story: The,20260896
-71,Surprise,Surprise,11,The,Emotion: Surprise | Story: The,20260897
-72,Surprise,Surprise,12,The,Emotion: Surprise | Story: The,20260898
-73,Surprise,Surprise,13,The,Emotion: Surprise | Story: The,20260899
-74,Surprise,Surprise,14,The,Emotion: Surprise | Story: The,20260900
-75,Surprise,Surprise,15,The,Emotion: Surprise | Story: The,20260901
-76,Surprise,Surprise,16,The,Emotion: Surprise | Story: The,20260902
-77,Surprise,Surprise,17,The,Emotion: Surprise | Story: The,20260903
-78,Surprise,Surprise,18,The,Emotion: Surprise | Story: The,20260904
-79,Surprise,Surprise,19,The,Emotion: Surprise | Story: The,20260905
-80,Sadness,Sadness,0,The,Emotion: Sadness | Story: The,20260906
-81,Sadness,Sadness,1,The,Emotion: Sadness | Story: The,20260907
-82,Sadness,Sadness,2,The,Emotion: Sadness | Story: The,20260908
-83,Sadness,Sadness,3,The,Emotion: Sadness | Story: The,20260909
-84,Sadness,Sadness,4,The,Emotion: Sadness | Story: The,20260910
-85,Sadness,Sadness,5,The,Emotion: Sadness | Story: The,20260911
-86,Sadness,Sadness,6,The,Emotion: Sadness | Story: The,20260912
-87,Sadness,Sadness,7,The,Emotion: Sadness | Story: The,20260913
-88,Sadness,Sadness,8,The,Emotion: Sadness | Story: The,20260914
-89,Sadness,Sadness,9,The,Emotion: Sadness | Story: The,20260915
-90,Sadness,Sadness,10,The,Emotion: Sadness | Story: The,20260916
-91,Sadness,Sadness,11,The,Emotion: Sadness | Story: The,20260917
-92,Sadness,Sadness,12,The,Emotion: Sadness | Story: The,20260918
-93,Sadness,Sadness,13,The,Emotion: Sadness | Story: The,20260919
-94,Sadness,Sadness,14,The,Emotion: Sadness | Story: The,20260920
-95,Sadness,Sadness,15,The,Emotion: Sadness | Story: The,20260921
-96,Sadness,Sadness,16,The,Emotion: Sadness | Story: The,20260922
-97,Sadness,Sadness,17,The,Emotion: Sadness | Story: The,20260923
-98,Sadness,Sadness,18,The,Emotion: Sadness | Story: The,20260924
-99,Sadness,Sadness,19,The,Emotion: Sadness | Story: The,20260925
-100,Disgust,Anger,0,The,Emotion: Disgust | Story: The,20260926
-101,Disgust,Anger,1,The,Emotion: Disgust | Story: The,20260927
-102,Disgust,Anger,2,The,Emotion: Disgust | Story: The,20260928
-103,Disgust,Anger,3,The,Emotion: Disgust | Story: The,20260929
-104,Disgust,Anger,4,The,Emotion: Disgust | Story: The,20260930
-105,Disgust,Anger,5,The,Emotion: Disgust | Story: The,20260931
-106,Disgust,Anger,6,The,Emotion: Disgust | Story: The,20260932
-107,Disgust,Anger,7,The,Emotion: Disgust | Story: The,20260933
-108,Disgust,Anger,8,The,Emotion: Disgust | Story: The,20260934
-109,Disgust,Anger,9,The,Emotion: Disgust | Story: The,20260935
-110,Disgust,Anger,10,The,Emotion: Disgust | Story: The,20260936
-111,Disgust,Anger,11,The,Emotion: Disgust | Story: The,20260937
-112,Disgust,Anger,12,The,Emotion: Disgust | Story: The,20260938
-113,Disgust,Anger,13,The,Emotion: Disgust | Story: The,20260939
-114,Disgust,Anger,14,The,Emotion: Disgust | Story: The,20260940
-115,Disgust,Anger,15,The,Emotion: Disgust | Story: The,20260941
-116,Disgust,Anger,16,The,Emotion: Disgust | Story: The,20260942
-117,Disgust,Anger,17,The,Emotion: Disgust | Story: The,20260943
-118,Disgust,Anger,18,The,Emotion: Disgust | Story: The,20260944
-119,Disgust,Anger,19,The,Emotion: Disgust | Story: The,20260945
-120,Anger,Anger,0,The,Emotion: Anger | Story: The,20260946
-121,Anger,Anger,1,The,Emotion: Anger | Story: The,20260947
-122,Anger,Anger,2,The,Emotion: Anger | Story: The,20260948
-123,Anger,Anger,3,The,Emotion: Anger | Story: The,20260949
-124,Anger,Anger,4,The,Emotion: Anger | Story: The,20260950
-125,Anger,Anger,5,The,Emotion: Anger | Story: The,20260951
-126,Anger,Anger,6,The,Emotion: Anger | Story: The,20260952
-127,Anger,Anger,7,The,Emotion: Anger | Story: The,20260953
-128,Anger,Anger,8,The,Emotion: Anger | Story: The,20260954
-129,Anger,Anger,9,The,Emotion: Anger | Story: The,20260955
-130,Anger,Anger,10,The,Emotion: Anger | Story: The,20260956
-131,Anger,Anger,11,The,Emotion: Anger | Story: The,20260957
-132,Anger,Anger,12,The,Emotion: Anger | Story: The,20260958
-133,Anger,Anger,13,The,Emotion: Anger | Story: The,20260959
-134,Anger,Anger,14,The,Emotion: Anger | Story: The,20260960
-135,Anger,Anger,15,The,Emotion: Anger | Story: The,20260961
-136,Anger,Anger,16,The,Emotion: Anger | Story: The,20260962
-137,Anger,Anger,17,The,Emotion: Anger | Story: The,20260963
-138,Anger,Anger,18,The,Emotion: Anger | Story: The,20260964
-139,Anger,Anger,19,The,Emotion: Anger | Story: The,20260965
-140,Anticipation,Anticipation,0,The,Emotion: Anticipation | Story: The,20260966
-141,Anticipation,Anticipation,1,The,Emotion: Anticipation | Story: The,20260967
-142,Anticipation,Anticipation,2,The,Emotion: Anticipation | Story: The,20260968
-143,Anticipation,Anticipation,3,The,Emotion: Anticipation | Story: The,20260969
-144,Anticipation,Anticipation,4,The,Emotion: Anticipation | Story: The,20260970
-145,Anticipation,Anticipation,5,The,Emotion: Anticipation | Story: The,20260971
-146,Anticipation,Anticipation,6,The,Emotion: Anticipation | Story: The,20260972
-147,Anticipation,Anticipation,7,The,Emotion: Anticipation | Story: The,20260973
-148,Anticipation,Anticipation,8,The,Emotion: Anticipation | Story: The,20260974
-149,Anticipation,Anticipation,9,The,Emotion: Anticipation | Story: The,20260975
-150,Anticipation,Anticipation,10,The,Emotion: Anticipation | Story: The,20260976
-151,Anticipation,Anticipation,11,The,Emotion: Anticipation | Story: The,20260977
-152,Anticipation,Anticipation,12,The,Emotion: Anticipation | Story: The,20260978
-153,Anticipation,Anticipation,13,The,Emotion: Anticipation | Story: The,20260979
-154,Anticipation,Anticipation,14,The,Emotion: Anticipation | Story: The,20260980
-155,Anticipation,Anticipation,15,The,Emotion: Anticipation | Story: The,20260981
-156,Anticipation,Anticipation,16,The,Emotion: Anticipation | Story: The,20260982
-157,Anticipation,Anticipation,17,The,Emotion: Anticipation | Story: The,20260983
-158,Anticipation,Anticipation,18,The,Emotion: Anticipation | Story: The,20260984
-159,Anticipation,Anticipation,19,The,Emotion: Anticipation | Story: The,20260985
+prompt_id,lexicon_key,target_label,stem_id,story_start,prompt_text,seed
+0,Joy,Joy,0,The brassy ring of the bell,Emotion: Joy | Story: The brassy ring of the bell,20260826
+1,Joy,Joy,1,The recruiter waited inside the small,Emotion: Joy | Story: The recruiter waited inside the small,20260827
+2,Joy,Joy,2,Three men of different species sat,Emotion: Joy | Story: Three men of different species sat,20260828
+3,Joy,Joy,3,"As a rule, they are always","Emotion: Joy | Story: As a rule, they are always",20260829
+4,Joy,Joy,4,Charon had spent almost exactly half,Emotion: Joy | Story: Charon had spent almost exactly half,20260830
+5,Joy,Joy,5,"Unforgiving Phineas, in all his booming","Emotion: Joy | Story: Unforgiving Phineas, in all his booming",20260831
+6,Joy,Joy,6,Jesus turned to his father with,Emotion: Joy | Story: Jesus turned to his father with,20260832
+7,Joy,Joy,7,He stood in front of the,Emotion: Joy | Story: He stood in front of the,20260833
+8,Joy,Joy,8,"The man crawled over the border,","Emotion: Joy | Story: The man crawled over the border,",20260834
+9,Joy,Joy,9,I play the haunting melody of,Emotion: Joy | Story: I play the haunting melody of,20260835
+10,Joy,Joy,10,Gwen was brushing her teeth the,Emotion: Joy | Story: Gwen was brushing her teeth the,20260836
+11,Joy,Joy,11,Friday. Night. The tube. It is,Emotion: Joy | Story: Friday. Night. The tube. It is,20260837
+12,Joy,Joy,12,Personal Demons The victim was wide,Emotion: Joy | Story: Personal Demons The victim was wide,20260838
+13,Joy,Joy,13,Captain Rick slammed on the brakes,Emotion: Joy | Story: Captain Rick slammed on the brakes,20260839
+14,Joy,Joy,14,I am not alone. I am,Emotion: Joy | Story: I am not alone. I am,20260840
+15,Joy,Joy,15,Five shots. Five shots rang out,Emotion: Joy | Story: Five shots. Five shots rang out,20260841
+16,Joy,Joy,16,This was the first time she,Emotion: Joy | Story: This was the first time she,20260842
+17,Joy,Joy,17,"As Matthew opened his eyes, the","Emotion: Joy | Story: As Matthew opened his eyes, the",20260843
+18,Joy,Joy,18,I saw the car as it,Emotion: Joy | Story: I saw the car as it,20260844
+19,Joy,Joy,19,General Bolden made his way to,Emotion: Joy | Story: General Bolden made his way to,20260845
+20,Trust,Trust,0,The brassy ring of the bell,Emotion: Trust | Story: The brassy ring of the bell,20260846
+21,Trust,Trust,1,The recruiter waited inside the small,Emotion: Trust | Story: The recruiter waited inside the small,20260847
+22,Trust,Trust,2,Three men of different species sat,Emotion: Trust | Story: Three men of different species sat,20260848
+23,Trust,Trust,3,"As a rule, they are always","Emotion: Trust | Story: As a rule, they are always",20260849
+24,Trust,Trust,4,Charon had spent almost exactly half,Emotion: Trust | Story: Charon had spent almost exactly half,20260850
+25,Trust,Trust,5,"Unforgiving Phineas, in all his booming","Emotion: Trust | Story: Unforgiving Phineas, in all his booming",20260851
+26,Trust,Trust,6,Jesus turned to his father with,Emotion: Trust | Story: Jesus turned to his father with,20260852
+27,Trust,Trust,7,He stood in front of the,Emotion: Trust | Story: He stood in front of the,20260853
+28,Trust,Trust,8,"The man crawled over the border,","Emotion: Trust | Story: The man crawled over the border,",20260854
+29,Trust,Trust,9,I play the haunting melody of,Emotion: Trust | Story: I play the haunting melody of,20260855
+30,Trust,Trust,10,Gwen was brushing her teeth the,Emotion: Trust | Story: Gwen was brushing her teeth the,20260856
+31,Trust,Trust,11,Friday. Night. The tube. It is,Emotion: Trust | Story: Friday. Night. The tube. It is,20260857
+32,Trust,Trust,12,Personal Demons The victim was wide,Emotion: Trust | Story: Personal Demons The victim was wide,20260858
+33,Trust,Trust,13,Captain Rick slammed on the brakes,Emotion: Trust | Story: Captain Rick slammed on the brakes,20260859
+34,Trust,Trust,14,I am not alone. I am,Emotion: Trust | Story: I am not alone. I am,20260860
+35,Trust,Trust,15,Five shots. Five shots rang out,Emotion: Trust | Story: Five shots. Five shots rang out,20260861
+36,Trust,Trust,16,This was the first time she,Emotion: Trust | Story: This was the first time she,20260862
+37,Trust,Trust,17,"As Matthew opened his eyes, the","Emotion: Trust | Story: As Matthew opened his eyes, the",20260863
+38,Trust,Trust,18,I saw the car as it,Emotion: Trust | Story: I saw the car as it,20260864
+39,Trust,Trust,19,General Bolden made his way to,Emotion: Trust | Story: General Bolden made his way to,20260865
+40,Fear,Fear,0,The brassy ring of the bell,Emotion: Fear | Story: The brassy ring of the bell,20260866
+41,Fear,Fear,1,The recruiter waited inside the small,Emotion: Fear | Story: The recruiter waited inside the small,20260867
+42,Fear,Fear,2,Three men of different species sat,Emotion: Fear | Story: Three men of different species sat,20260868
+43,Fear,Fear,3,"As a rule, they are always","Emotion: Fear | Story: As a rule, they are always",20260869
+44,Fear,Fear,4,Charon had spent almost exactly half,Emotion: Fear | Story: Charon had spent almost exactly half,20260870
+45,Fear,Fear,5,"Unforgiving Phineas, in all his booming","Emotion: Fear | Story: Unforgiving Phineas, in all his booming",20260871
+46,Fear,Fear,6,Jesus turned to his father with,Emotion: Fear | Story: Jesus turned to his father with,20260872
+47,Fear,Fear,7,He stood in front of the,Emotion: Fear | Story: He stood in front of the,20260873
+48,Fear,Fear,8,"The man crawled over the border,","Emotion: Fear | Story: The man crawled over the border,",20260874
+49,Fear,Fear,9,I play the haunting melody of,Emotion: Fear | Story: I play the haunting melody of,20260875
+50,Fear,Fear,10,Gwen was brushing her teeth the,Emotion: Fear | Story: Gwen was brushing her teeth the,20260876
+51,Fear,Fear,11,Friday. Night. The tube. It is,Emotion: Fear | Story: Friday. Night. The tube. It is,20260877
+52,Fear,Fear,12,Personal Demons The victim was wide,Emotion: Fear | Story: Personal Demons The victim was wide,20260878
+53,Fear,Fear,13,Captain Rick slammed on the brakes,Emotion: Fear | Story: Captain Rick slammed on the brakes,20260879
+54,Fear,Fear,14,I am not alone. I am,Emotion: Fear | Story: I am not alone. I am,20260880
+55,Fear,Fear,15,Five shots. Five shots rang out,Emotion: Fear | Story: Five shots. Five shots rang out,20260881
+56,Fear,Fear,16,This was the first time she,Emotion: Fear | Story: This was the first time she,20260882
+57,Fear,Fear,17,"As Matthew opened his eyes, the","Emotion: Fear | Story: As Matthew opened his eyes, the",20260883
+58,Fear,Fear,18,I saw the car as it,Emotion: Fear | Story: I saw the car as it,20260884
+59,Fear,Fear,19,General Bolden made his way to,Emotion: Fear | Story: General Bolden made his way to,20260885
+60,Surprise,Surprise,0,The brassy ring of the bell,Emotion: Surprise | Story: The brassy ring of the bell,20260886
+61,Surprise,Surprise,1,The recruiter waited inside the small,Emotion: Surprise | Story: The recruiter waited inside the small,20260887
+62,Surprise,Surprise,2,Three men of different species sat,Emotion: Surprise | Story: Three men of different species sat,20260888
+63,Surprise,Surprise,3,"As a rule, they are always","Emotion: Surprise | Story: As a rule, they are always",20260889
+64,Surprise,Surprise,4,Charon had spent almost exactly half,Emotion: Surprise | Story: Charon had spent almost exactly half,20260890
+65,Surprise,Surprise,5,"Unforgiving Phineas, in all his booming","Emotion: Surprise | Story: Unforgiving Phineas, in all his booming",20260891
+66,Surprise,Surprise,6,Jesus turned to his father with,Emotion: Surprise | Story: Jesus turned to his father with,20260892
+67,Surprise,Surprise,7,He stood in front of the,Emotion: Surprise | Story: He stood in front of the,20260893
+68,Surprise,Surprise,8,"The man crawled over the border,","Emotion: Surprise | Story: The man crawled over the border,",20260894
+69,Surprise,Surprise,9,I play the haunting melody of,Emotion: Surprise | Story: I play the haunting melody of,20260895
+70,Surprise,Surprise,10,Gwen was brushing her teeth the,Emotion: Surprise | Story: Gwen was brushing her teeth the,20260896
+71,Surprise,Surprise,11,Friday. Night. The tube. It is,Emotion: Surprise | Story: Friday. Night. The tube. It is,20260897
+72,Surprise,Surprise,12,Personal Demons The victim was wide,Emotion: Surprise | Story: Personal Demons The victim was wide,20260898
+73,Surprise,Surprise,13,Captain Rick slammed on the brakes,Emotion: Surprise | Story: Captain Rick slammed on the brakes,20260899
+74,Surprise,Surprise,14,I am not alone. I am,Emotion: Surprise | Story: I am not alone. I am,20260900
+75,Surprise,Surprise,15,Five shots. Five shots rang out,Emotion: Surprise | Story: Five shots. Five shots rang out,20260901
+76,Surprise,Surprise,16,This was the first time she,Emotion: Surprise | Story: This was the first time she,20260902
+77,Surprise,Surprise,17,"As Matthew opened his eyes, the","Emotion: Surprise | Story: As Matthew opened his eyes, the",20260903
+78,Surprise,Surprise,18,I saw the car as it,Emotion: Surprise | Story: I saw the car as it,20260904
+79,Surprise,Surprise,19,General Bolden made his way to,Emotion: Surprise | Story: General Bolden made his way to,20260905
+80,Sadness,Sadness,0,The brassy ring of the bell,Emotion: Sadness | Story: The brassy ring of the bell,20260906
+81,Sadness,Sadness,1,The recruiter waited inside the small,Emotion: Sadness | Story: The recruiter waited inside the small,20260907
+82,Sadness,Sadness,2,Three men of different species sat,Emotion: Sadness | Story: Three men of different species sat,20260908
+83,Sadness,Sadness,3,"As a rule, they are always","Emotion: Sadness | Story: As a rule, they are always",20260909
+84,Sadness,Sadness,4,Charon had spent almost exactly half,Emotion: Sadness | Story: Charon had spent almost exactly half,20260910
+85,Sadness,Sadness,5,"Unforgiving Phineas, in all his booming","Emotion: Sadness | Story: Unforgiving Phineas, in all his booming",20260911
+86,Sadness,Sadness,6,Jesus turned to his father with,Emotion: Sadness | Story: Jesus turned to his father with,20260912
+87,Sadness,Sadness,7,He stood in front of the,Emotion: Sadness | Story: He stood in front of the,20260913
+88,Sadness,Sadness,8,"The man crawled over the border,","Emotion: Sadness | Story: The man crawled over the border,",20260914
+89,Sadness,Sadness,9,I play the haunting melody of,Emotion: Sadness | Story: I play the haunting melody of,20260915
+90,Sadness,Sadness,10,Gwen was brushing her teeth the,Emotion: Sadness | Story: Gwen was brushing her teeth the,20260916
+91,Sadness,Sadness,11,Friday. Night. The tube. It is,Emotion: Sadness | Story: Friday. Night. The tube. It is,20260917
+92,Sadness,Sadness,12,Personal Demons The victim was wide,Emotion: Sadness | Story: Personal Demons The victim was wide,20260918
+93,Sadness,Sadness,13,Captain Rick slammed on the brakes,Emotion: Sadness | Story: Captain Rick slammed on the brakes,20260919
+94,Sadness,Sadness,14,I am not alone. I am,Emotion: Sadness | Story: I am not alone. I am,20260920
+95,Sadness,Sadness,15,Five shots. Five shots rang out,Emotion: Sadness | Story: Five shots. Five shots rang out,20260921
+96,Sadness,Sadness,16,This was the first time she,Emotion: Sadness | Story: This was the first time she,20260922
+97,Sadness,Sadness,17,"As Matthew opened his eyes, the","Emotion: Sadness | Story: As Matthew opened his eyes, the",20260923
+98,Sadness,Sadness,18,I saw the car as it,Emotion: Sadness | Story: I saw the car as it,20260924
+99,Sadness,Sadness,19,General Bolden made his way to,Emotion: Sadness | Story: General Bolden made his way to,20260925
+100,Disgust,Anger,0,The brassy ring of the bell,Emotion: Disgust | Story: The brassy ring of the bell,20260926
+101,Disgust,Anger,1,The recruiter waited inside the small,Emotion: Disgust | Story: The recruiter waited inside the small,20260927
+102,Disgust,Anger,2,Three men of different species sat,Emotion: Disgust | Story: Three men of different species sat,20260928
+103,Disgust,Anger,3,"As a rule, they are always","Emotion: Disgust | Story: As a rule, they are always",20260929
+104,Disgust,Anger,4,Charon had spent almost exactly half,Emotion: Disgust | Story: Charon had spent almost exactly half,20260930
+105,Disgust,Anger,5,"Unforgiving Phineas, in all his booming","Emotion: Disgust | Story: Unforgiving Phineas, in all his booming",20260931
+106,Disgust,Anger,6,Jesus turned to his father with,Emotion: Disgust | Story: Jesus turned to his father with,20260932
+107,Disgust,Anger,7,He stood in front of the,Emotion: Disgust | Story: He stood in front of the,20260933
+108,Disgust,Anger,8,"The man crawled over the border,","Emotion: Disgust | Story: The man crawled over the border,",20260934
+109,Disgust,Anger,9,I play the haunting melody of,Emotion: Disgust | Story: I play the haunting melody of,20260935
+110,Disgust,Anger,10,Gwen was brushing her teeth the,Emotion: Disgust | Story: Gwen was brushing her teeth the,20260936
+111,Disgust,Anger,11,Friday. Night. The tube. It is,Emotion: Disgust | Story: Friday. Night. The tube. It is,20260937
+112,Disgust,Anger,12,Personal Demons The victim was wide,Emotion: Disgust | Story: Personal Demons The victim was wide,20260938
+113,Disgust,Anger,13,Captain Rick slammed on the brakes,Emotion: Disgust | Story: Captain Rick slammed on the brakes,20260939
+114,Disgust,Anger,14,I am not alone. I am,Emotion: Disgust | Story: I am not alone. I am,20260940
+115,Disgust,Anger,15,Five shots. Five shots rang out,Emotion: Disgust | Story: Five shots. Five shots rang out,20260941
+116,Disgust,Anger,16,This was the first time she,Emotion: Disgust | Story: This was the first time she,20260942
+117,Disgust,Anger,17,"As Matthew opened his eyes, the","Emotion: Disgust | Story: As Matthew opened his eyes, the",20260943
+118,Disgust,Anger,18,I saw the car as it,Emotion: Disgust | Story: I saw the car as it,20260944
+119,Disgust,Anger,19,General Bolden made his way to,Emotion: Disgust | Story: General Bolden made his way to,20260945
+120,Anger,Anger,0,The brassy ring of the bell,Emotion: Anger | Story: The brassy ring of the bell,20260946
+121,Anger,Anger,1,The recruiter waited inside the small,Emotion: Anger | Story: The recruiter waited inside the small,20260947
+122,Anger,Anger,2,Three men of different species sat,Emotion: Anger | Story: Three men of different species sat,20260948
+123,Anger,Anger,3,"As a rule, they are always","Emotion: Anger | Story: As a rule, they are always",20260949
+124,Anger,Anger,4,Charon had spent almost exactly half,Emotion: Anger | Story: Charon had spent almost exactly half,20260950
+125,Anger,Anger,5,"Unforgiving Phineas, in all his booming","Emotion: Anger | Story: Unforgiving Phineas, in all his booming",20260951
+126,Anger,Anger,6,Jesus turned to his father with,Emotion: Anger | Story: Jesus turned to his father with,20260952
+127,Anger,Anger,7,He stood in front of the,Emotion: Anger | Story: He stood in front of the,20260953
+128,Anger,Anger,8,"The man crawled over the border,","Emotion: Anger | Story: The man crawled over the border,",20260954
+129,Anger,Anger,9,I play the haunting melody of,Emotion: Anger | Story: I play the haunting melody of,20260955
+130,Anger,Anger,10,Gwen was brushing her teeth the,Emotion: Anger | Story: Gwen was brushing her teeth the,20260956
+131,Anger,Anger,11,Friday. Night. The tube. It is,Emotion: Anger | Story: Friday. Night. The tube. It is,20260957
+132,Anger,Anger,12,Personal Demons The victim was wide,Emotion: Anger | Story: Personal Demons The victim was wide,20260958
+133,Anger,Anger,13,Captain Rick slammed on the brakes,Emotion: Anger | Story: Captain Rick slammed on the brakes,20260959
+134,Anger,Anger,14,I am not alone. I am,Emotion: Anger | Story: I am not alone. I am,20260960
+135,Anger,Anger,15,Five shots. Five shots rang out,Emotion: Anger | Story: Five shots. Five shots rang out,20260961
+136,Anger,Anger,16,This was the first time she,Emotion: Anger | Story: This was the first time she,20260962
+137,Anger,Anger,17,"As Matthew opened his eyes, the","Emotion: Anger | Story: As Matthew opened his eyes, the",20260963
+138,Anger,Anger,18,I saw the car as it,Emotion: Anger | Story: I saw the car as it,20260964
+139,Anger,Anger,19,General Bolden made his way to,Emotion: Anger | Story: General Bolden made his way to,20260965
+140,Anticipation,Anticipation,0,The brassy ring of the bell,Emotion: Anticipation | Story: The brassy ring of the bell,20260966
+141,Anticipation,Anticipation,1,The recruiter waited inside the small,Emotion: Anticipation | Story: The recruiter waited inside the small,20260967
+142,Anticipation,Anticipation,2,Three men of different species sat,Emotion: Anticipation | Story: Three men of different species sat,20260968
+143,Anticipation,Anticipation,3,"As a rule, they are always","Emotion: Anticipation | Story: As a rule, they are always",20260969
+144,Anticipation,Anticipation,4,Charon had spent almost exactly half,Emotion: Anticipation | Story: Charon had spent almost exactly half,20260970
+145,Anticipation,Anticipation,5,"Unforgiving Phineas, in all his booming","Emotion: Anticipation | Story: Unforgiving Phineas, in all his booming",20260971
+146,Anticipation,Anticipation,6,Jesus turned to his father with,Emotion: Anticipation | Story: Jesus turned to his father with,20260972
+147,Anticipation,Anticipation,7,He stood in front of the,Emotion: Anticipation | Story: He stood in front of the,20260973
+148,Anticipation,Anticipation,8,"The man crawled over the border,","Emotion: Anticipation | Story: The man crawled over the border,",20260974
+149,Anticipation,Anticipation,9,I play the haunting melody of,Emotion: Anticipation | Story: I play the haunting melody of,20260975
+150,Anticipation,Anticipation,10,Gwen was brushing her teeth the,Emotion: Anticipation | Story: Gwen was brushing her teeth the,20260976
+151,Anticipation,Anticipation,11,Friday. Night. The tube. It is,Emotion: Anticipation | Story: Friday. Night. The tube. It is,20260977
+152,Anticipation,Anticipation,12,Personal Demons The victim was wide,Emotion: Anticipation | Story: Personal Demons The victim was wide,20260978
+153,Anticipation,Anticipation,13,Captain Rick slammed on the brakes,Emotion: Anticipation | Story: Captain Rick slammed on the brakes,20260979
+154,Anticipation,Anticipation,14,I am not alone. I am,Emotion: Anticipation | Story: I am not alone. I am,20260980
+155,Anticipation,Anticipation,15,Five shots. Five shots rang out,Emotion: Anticipation | Story: Five shots. Five shots rang out,20260981
+156,Anticipation,Anticipation,16,This was the first time she,Emotion: Anticipation | Story: This was the first time she,20260982
+157,Anticipation,Anticipation,17,"As Matthew opened his eyes, the","Emotion: Anticipation | Story: As Matthew opened his eyes, the",20260983
+158,Anticipation,Anticipation,18,I saw the car as it,Emotion: Anticipation | Story: I saw the car as it,20260984
+159,Anticipation,Anticipation,19,General Bolden made his way to,Emotion: Anticipation | Story: General Bolden made his way to,20260985
