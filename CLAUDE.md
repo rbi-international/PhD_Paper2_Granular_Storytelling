@@ -59,6 +59,13 @@ command, timestamp. Continuous per-row output flushing so a crash never loses a 
 summary (N, Top-1 accuracy, per-emotion F1) so I can sanity-check before numbers reach
 the paper. Reproducible from a single command.
 
+## Handoff discipline
+In HANDOFF.md, a step is DONE only when its output file exists and has been inspected,
+never when a decision has merely been made. Decisions that are agreed but not yet run go
+under a separate "Decided (not yet run)" heading, never under "Completed". If code was
+supposed to run and did not, the step is not DONE even if the plan is final. Verify against
+the actual script, not the note.
+
 ## Workflow rule
 Before writing model-loading or training code, confirm the plan and show the file
 structure first. I gate the model-touching code. Pure data/scaffolding code you can build
