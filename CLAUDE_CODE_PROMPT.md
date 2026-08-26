@@ -74,14 +74,24 @@ aggressive-steering b=15 collapse run (which genuinely is 6.67%, N=120).
 ## Tasks (build in this order)
 
 ### Task A, reviewer comment 4: expanded ablation (fastest, reuses existing code)
-1. Lexicon-size ablation. Create small / medium / large versions of EMOTION_LEXICON
-   (about 5, 15, 30 words per emotion). Run steered inference with each on the 160-prompt
-   set. Output: lexicon_small_results.csv, lexicon_medium_results.csv, lexicon_large_results.csv.
+1. Lexicon-size ablation. Ablate DOWNWARD from the production lexicon: use the full
+   validated list (15 words per emotion, the one that produced 47.50%), then a 10-word
+   subset, then a 5-word subset. Every word must already exist in the published config,
+   do NOT generate new words (keeps the variable purely size, and keeps provenance clean
+   for reviewers). Frame it as "we progressively reduced the lexicon to test sensitivity."
+   Run steered inference with each on the 160-prompt set.
+   Output: lexicon_15_results.csv, lexicon_10_results.csv, lexicon_5_results.csv.
 2. Decoding-strategy ablation. Re-run the Hybrid config (GPT-2 Large + LoRA + steering,
    boost=5.0) with greedy, top-k (k=50), and top-p (p=0.92, current default) decoding.
    Output: decoding_greedy_results.csv, decoding_topk_results.csv, decoding_topp_results.csv.
 3. LoRA rank ablation (8/32/64/128) already exists in my prior CSVs. Do NOT re-run it,
    just make sure the summary script (below) reads those existing files.
+
+### Task A.5: real b=1 steering run (replaces a hardcoded proxy in the figure)
+Run the Hybrid config (GPT-2 Large + LoRA + steering) with boost=1.0 on the 160-prompt
+set. This measures the low end of the beta ablation empirically instead of assuming it
+equals the no-steering large baseline. Output: steered_b1_results.csv. Then update
+make_figures.py fig4() to read this real value instead of the hardcoded 13.12 proxy.
 
 ### Task B, reviewer comment 2: newer lightweight model baselines (inference only, NO fine-tuning)
 Prompt these models on the SAME 160 prompts, then score with my RoBERTa judge. All must

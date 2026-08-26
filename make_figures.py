@@ -117,8 +117,12 @@ def fig3():
     print("Fig3 saved")
 
 def fig4():
-    # beta ablation. b=1 reverts to ~large baseline, b=5 sweet spot, b=15 collapse.
-    beta = [1.0, 5.0, 15.0]; accs = [13.12, 47.50, 6.67]
+    # beta ablation. b=5 sweet spot, b=15 collapse. b=1 now read from a REAL run
+    # (steered_b1_results.csv) if present, else falls back to the old 13.12 proxy.
+    b1 = acc("steered_b1_results.csv") if os.path.exists("steered_b1_results.csv") else 13.12
+    b5 = acc("hybrid_results.csv") if os.path.exists("hybrid_results.csv") else 47.50
+    b15 = acc("aggressive_steered_results.csv") if os.path.exists("aggressive_steered_results.csv") else 6.67
+    beta = [1.0, 5.0, 15.0]; accs = [b1, b5, b15]
     fig, ax = plt.subplots(figsize=(9, 6), dpi=300)
     ax.plot(beta, accs, "o-", color="#c00000", lw=2.5, markersize=11,
             markerfacecolor="white", markeredgewidth=2.5)
