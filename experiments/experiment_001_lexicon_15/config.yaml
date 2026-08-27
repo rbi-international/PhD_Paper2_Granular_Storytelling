@@ -1,0 +1,172 @@
+config_name: lexicon_15
+technique: LoRA + lexical steering (b=5.0), lexicon tier 15
+model: GPT-2 Large + LoRA r32
+base_model: gpt2-large
+adapter: models/gpt2_large_optimized
+lexicon_tier: '15'
+lexicon_word_counts:
+  Joy: 15
+  Trust: 14
+  Fear: 15
+  Surprise: 13
+  Sadness: 15
+  Disgust: 14
+  Anger: 15
+  Anticipation: 13
+lexicon_words:
+  Joy:
+  - smile
+  - laugh
+  - happy
+  - delight
+  - wonderful
+  - bright
+  - cheer
+  - excited
+  - love
+  - joy
+  - grin
+  - warmth
+  - beautiful
+  - sun
+  - light
+  Trust:
+  - friend
+  - trust
+  - believe
+  - safe
+  - rely
+  - honor
+  - truth
+  - accept
+  - help
+  - support
+  - agree
+  - faith
+  - promise
+  - steady
+  Fear:
+  - dark
+  - scared
+  - afraid
+  - shiver
+  - scream
+  - run
+  - terror
+  - shadow
+  - cold
+  - panic
+  - threat
+  - nervous
+  - hide
+  - creep
+  - blood
+  Surprise:
+  - shock
+  - gasp
+  - sudden
+  - unexpected
+  - stunned
+  - wow
+  - flash
+  - blink
+  - amazed
+  - jolt
+  - startle
+  - wide
+  - abrupt
+  Sadness:
+  - cry
+  - tear
+  - loss
+  - grief
+  - sob
+  - sad
+  - alone
+  - miss
+  - pain
+  - hurt
+  - empty
+  - sorry
+  - dark
+  - weep
+  - broken
+  Disgust:
+  - gross
+  - nasty
+  - sick
+  - vile
+  - foul
+  - ugly
+  - hate
+  - repulse
+  - dirty
+  - rotten
+  - trash
+  - slime
+  - smell
+  - puke
+  Anger:
+  - rage
+  - furious
+  - hate
+  - yell
+  - shout
+  - mad
+  - angry
+  - fist
+  - hit
+  - burn
+  - fight
+  - stupid
+  - annoy
+  - kill
+  - slam
+  Anticipation:
+  - wait
+  - hope
+  - ready
+  - soon
+  - plan
+  - wish
+  - dream
+  - expect
+  - watch
+  - look
+  - forward
+  - prepare
+  - future
+boost_factor: 5.0
+decoding: topp
+decoding_params:
+  do_sample: true
+  temperature: 0.8
+  top_p: 0.92
+max_new_tokens: 60
+repetition_penalty: 1.2
+manifest: data/processed/test_prompts_160.csv
+manifest_rows: 160
+judge: SamLowe/roberta-base-go_emotions
+caveat: tier 15 is the full published lexicon, which holds 13 to 15 words per emotion
+  (mean 14.25), not a uniform 15
+git:
+  git_commit: a606ffe8e2321afa03f6190b25b657a5c0f7f8b4
+  git_branch: main
+  git_tree_clean: true
+  git_dirty_files: []
+environment:
+  python: 3.11.14
+  platform: Windows-10-10.0.26200-SP0
+  torch: 2.10.0+cu128
+  transformers: 5.3.0
+  peft: 0.18.1
+  cuda_available: true
+  cuda: '12.8'
+  cudnn: 91002
+  gpu: NVIDIA GeForce RTX 3060 Laptop GPU
+  vram_gib: 6.0
+run_command: python.exe src/6_ablations/run_lexicon_ablation.py --tier 15
+reference:
+  source_file: src/5_evaluation/07_evaluate_hybrid.py
+  steering_sha256: e864537764c260ed616a7950a8290a72222d5bf702a15e407a890e7163f3d714
+  steering_loaded_live: true

@@ -1,0 +1,8 @@
+config_name,model,technique,N,top1_accuracy,f1_Joy,f1_Fear,f1_Sadness,f1_Anger,f1_Trust,f1_Surprise,f1_Anticipation,caveat
+lexicon_15,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), lexicon tier 15",160,38.12,0.7368,0.7273,0.8108,0.4,0.2667,0.24,0.2609,"tier 15 is the full published lexicon, which holds 13 to 15 words per emotion (mean 14.25), not a uniform 15"
+lexicon_10,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), lexicon tier 10",160,38.75,0.7727,0.8421,0.6667,0.3673,0.2963,0.2308,0.1818,
+decoding_topp,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), topp decoding",160,38.12,0.7368,0.7273,0.8108,0.4,0.2667,0.24,0.2609,
+decoding_topk,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), topk decoding",160,36.25,0.6061,0.7895,0.6111,0.4528,0.25,0.3333,0.1667,
+lexicon_5,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), lexicon tier 5",160,22.5,0.5,0.5,0.3448,0.2979,0.16,0.1481,0.1739,
+decoding_greedy,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), greedy decoding",160,44.38,0.6977,0.8571,0.9,0.4815,0.2857,0.2759,0.1667,"greedy decoding is deterministic, so each of the 160 rows is a distinct prompt but repeat runs are identical"
+beta_1,GPT-2 Large + LoRA r32,LoRA + lexical steering (b=1),160,11.88,0.3571,0.32,0.0714,0.2609,0.1429,0.069,0.0,replaces the hardcoded 13.12 proxy previously used for b=1 in fig4
