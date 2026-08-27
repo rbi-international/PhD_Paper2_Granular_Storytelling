@@ -440,6 +440,37 @@ def next_experiment_dir(config_name):
     return path
 
 
+def find_or_create_experiment_dir(config_name, expected_rows):
+    """
+    Reuse an INCOMPLETE directory for this config, otherwise start a new one.
+
+    Without this, execute_run() always created a fresh directory, so ResumableWriter's
+    resume path was unreachable in normal operation: a re-run after a crash started from
+    row 0 in a new folder rather than continuing. The writer itself worked, but the
+    workflow claim "resumable from a crash" was false. This makes it true.
+
+    A directory counts as incomplete when its partial file has between 1 and
+    expected_rows - 1 rows. A finished config is never reused, so deliberately re-running
+    a completed experiment still produces a clean new directory rather than silently
+    doing nothing.
+    """
+    os.makedirs(EXPERIMENTS_DIR, exist_ok=True)
+    suffix = f"_{config_name}"
+    for name in sorted(os.listdir(EXPERIMENTS_DIR)):
+        if not (name.startswith("experiment_") and name.endswith(suffix)):
+            continue
+        path = os.path.join(EXPERIMENTS_DIR, name)
+        partial = os.path.join(path, "partial_results.csv")
+        if not os.path.exists(partial):
+            continue
+        with open(partial, newline="", encoding="utf-8") as handle:
+            done = sum(1 for row in csv.DictReader(handle) if row.get("prompt_id", "").strip())
+        if 0 < done < expected_rows:
+            print(f"  reusing {name}, {done} of {expected_rows} rows already complete")
+            return path
+    return next_experiment_dir(config_name)
+
+
 def write_provenance(exp_dir, config):
     """Write config.yaml. Warns loudly when the tree is dirty, so it is seen during the run."""
     import yaml
@@ -541,7 +572,7 @@ def execute_run(config_name, output_csv, technique, tier, boost_factor, decoding
 
     rows = load_prompt_set()
     tier_lexicon = lexicon_tiers.get_lexicon(tier)
-    exp_dir = next_experiment_dir(config_name)
+    exp_dir = find_or_create_experiment_dir(config_name, len(rows))
 
     write_provenance(exp_dir, {
         "config_name": config_name,

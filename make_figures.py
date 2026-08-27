@@ -36,7 +36,13 @@ def per_emotion_f1(path):
 # Edit this list as you add new runs. (name, csv_path, color)
 # gray = capacity-only, blue = scale, green = steer, red = main hybrid
 # ----------------------------------------------------------------------
-FIG1_CONFIGS = [
+# Two manifests are in play and they are NOT directly comparable. The original runs
+# used a single fixed story stem ("The") for all 160 generations. The revision runs use
+# 20 held-out neutral stems times 8 emotions. Mixing them in one undivided axis would
+# invite the false reading that top-p (47.50, old) beat greedy (44.38, new). They are
+# drawn as two labelled groups, and the old-manifest bars are hatched so the split
+# survives greyscale printing.
+FIG1_OLD_MANIFEST = [
     ("Med+LoRA r8\n(baseline)",   "evaluation_results_baseline.csv",       "#8c8c8c"),
     ("Med+LoRA r64",              "evaluation_results_optimized.csv",       "#8c8c8c"),
     ("Med+r32\nspecial tok",      "evaluation_results_special.csv",         "#8c8c8c"),
@@ -47,29 +53,59 @@ FIG1_CONFIGS = [
     ("Large+Aggr\n(b=15)",        "aggressive_steered_results.csv",         "#8c8c8c"),
 ]
 
+FIG1_NEW_MANIFEST = [
+    ("Greedy",          "decoding_greedy_results.csv", "#c00000"),
+    ("Top-p (p=.92) = Lexicon 15", "decoding_topp_results.csv", "#70ad47"),
+    ("Top-k (k=50)",    "decoding_topk_results.csv",   "#70ad47"),
+    ("Lexicon 10",      "lexicon_10_results.csv",      "#5b9bd5"),
+    ("Lexicon 5",       "lexicon_5_results.csv",       "#5b9bd5"),
+    ("Steer b=1",       "steered_b1_results.csv",      "#8c8c8c"),
+]
+
 def fig1():
-    labels, vals, colors = [], [], []
-    for name, path, color in FIG1_CONFIGS:
-        if os.path.exists(path):
-            labels.append(name); vals.append(acc(path)); colors.append(color)
-    fig, ax = plt.subplots(figsize=(11, 6), dpi=300)
-    bars = ax.bar(labels, vals, color=colors, edgecolor="black", linewidth=0.8, width=0.65)
-    for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width()/2, v + 0.6, f"{v:.2f}%",
-                ha="center", va="bottom", fontsize=10, fontweight="bold")
+    old = [(n, acc(p), c) for n, p, c in FIG1_OLD_MANIFEST if os.path.exists(p)]
+    new = [(n, acc(p), c) for n, p, c in FIG1_NEW_MANIFEST if os.path.exists(p)]
+    gap = 1.2
+    x_old = np.arange(len(old))
+    x_new = np.arange(len(new)) + len(old) + gap
+
+    fig, ax = plt.subplots(figsize=(14, 6.5), dpi=300)
+    for x, (name, value, color) in zip(x_old, old):
+        ax.bar(x, value, color=color, edgecolor="black", lw=0.8, width=0.65, hatch="//")
+    for x, (name, value, color) in zip(x_new, new):
+        ax.bar(x, value, color=color, edgecolor="black", lw=0.8, width=0.65)
+
+    for x, (name, value, color) in list(zip(x_old, old)) + list(zip(x_new, new)):
+        ax.text(x, value + 0.6, f"{value:.2f}%", ha="center", va="bottom",
+                fontsize=9, fontweight="bold")
+
+    all_vals = [v for _, v, _ in old + new]
+    top = max(all_vals) + 10
+    divider = len(old) + gap / 2 - 0.5
+    ax.axvline(divider, color="black", lw=1.2, ls=":", alpha=0.8)
     ax.axhline(12.5, ls="--", color="gray", lw=1, alpha=0.7)
-    ax.text(len(labels)-0.6, 13.2, "random chance (8-class)", ha="right",
-            fontsize=8, color="gray", style="italic")
+    ax.text(-0.4, 13.2, "random chance (8-class)", ha="left", fontsize=8,
+            color="gray", style="italic")
+
+    ax.text(divider - 0.6, top - 2.5, "Original manifest\n(single fixed stem \"The\")",
+            ha="right", va="top", fontsize=9.5, style="italic", color="#404040")
+    ax.text(divider + 0.6, top - 2.5, "Revision manifest\n(20 held-out neutral stems)",
+            ha="left", va="top", fontsize=9.5, style="italic", color="#404040")
+
+    # Rotate: several labels are long enough to collide at this bar spacing.
+    ax.set_xticks(list(x_old) + list(x_new))
+    ax.set_xticklabels(
+        [n.replace("\n", " ") for n, _, _ in old] + [n for n, _, _ in new],
+        fontsize=8.5, rotation=30, ha="right", rotation_mode="anchor")
     ax.set_ylabel("Top-1 Accuracy (%)", fontsize=12)
     ax.set_title("Emotional Controllability Across All Tested Configurations",
                  fontsize=13, fontweight="bold", pad=12)
-    ax.set_ylim(0, max(vals) + 7)
+    ax.set_ylim(0, top)
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
-    ax.tick_params(axis="x", labelsize=9)
     plt.tight_layout()
     plt.savefig(f"{OUT}/Fig1_Full_Comparison.png", dpi=300, bbox_inches="tight")
     plt.close()
-    print("Fig1 saved")
+    print("Fig1 saved (two manifests drawn as separate groups)")
 
 def fig2(hybrid="hybrid_results.csv"):
     d = pd.read_csv(hybrid)
@@ -107,7 +143,8 @@ def fig3():
            color="#c00000", edgecolor="black", lw=0.6)
     ax.set_ylabel("F1-Score", fontsize=12)
     ax.set_xticks(x); ax.set_xticklabels(EMOTIONS, fontsize=10)
-    ax.set_title("Per-Emotion F1: Effect of Adding Steering and Scale",
+    ax.set_title("Per-Emotion F1: Effect of Adding Steering and Scale\n"
+                 "(original manifest, single fixed stem)",
                  fontsize=13, fontweight="bold", pad=12)
     ax.legend(fontsize=10, frameon=True); ax.set_ylim(0, 0.95)
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
@@ -115,6 +152,43 @@ def fig3():
     plt.savefig(f"{OUT}/Fig3_PerEmotion_F1.png", dpi=300, bbox_inches="tight")
     plt.close()
     print("Fig3 saved")
+
+
+def fig3b():
+    """
+    Per-emotion F1 on the REVISION manifest only. Kept separate from fig3 rather than
+    merged into it: those runs use the original single fixed stem and these use 20
+    held-out neutral stems, so grouping them per emotion would imply a comparison the
+    data does not support. Everything inside this figure shares one manifest.
+    """
+    series = [
+        ("Greedy (b=5)",        "decoding_greedy_results.csv", "#c00000"),
+        ("Top-p (b=5)",         "decoding_topp_results.csv",   "#70ad47"),
+        ("Lexicon 5 (b=5)",     "lexicon_5_results.csv",       "#5b9bd5"),
+        ("Steer b=1",           "steered_b1_results.csv",      "#a6a6a6"),
+    ]
+    present = [(n, per_emotion_f1(p), c) for n, p, c in series if os.path.exists(p)]
+    if len(present) < 2:
+        print("Fig3b skipped (revision CSVs not present yet)")
+        return
+    x = np.arange(len(EMOTIONS))
+    w = 0.8 / len(present)
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
+    for i, (name, scores, color) in enumerate(present):
+        offset = (i - (len(present) - 1) / 2) * w
+        ax.bar(x + offset, [scores[e] for e in EMOTIONS], w, label=name,
+               color=color, edgecolor="black", lw=0.6)
+    ax.set_ylabel("F1-Score", fontsize=12)
+    ax.set_xticks(x); ax.set_xticklabels(EMOTIONS, fontsize=10)
+    ax.set_title("Per-Emotion F1 by Decoding and Lexicon Size\n"
+                 "(revision manifest, 20 held-out neutral stems)",
+                 fontsize=13, fontweight="bold", pad=12)
+    ax.legend(fontsize=9, frameon=True, ncol=2); ax.set_ylim(0, 0.95)
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+    plt.savefig(f"{OUT}/Fig3b_PerEmotion_F1_Revision.png", dpi=300, bbox_inches="tight")
+    plt.close()
+    print("Fig3b saved")
 
 def fig4():
     # beta ablation. b=5 sweet spot, b=15 collapse. b=1 now read from a REAL run
@@ -172,5 +246,5 @@ def fig5():
     print("Fig5 saved")
 
 if __name__ == "__main__":
-    fig1(); fig2(); fig3(); fig4(); fig5()
+    fig1(); fig2(); fig3(); fig3b(); fig4(); fig5()
     print(f"\nAll figures written to {OUT}/ at 300 DPI.")
