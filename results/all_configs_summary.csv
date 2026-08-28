@@ -7,3 +7,5 @@ lexicon_5,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), lexicon tier 
 decoding_greedy,GPT-2 Large + LoRA r32,"LoRA + lexical steering (b=5.0), greedy decoding",160,44.38,0.6977,0.8571,0.9,0.4815,0.2857,0.2759,0.1667,"greedy decoding is deterministic, so each of the 160 rows is a distinct prompt but repeat runs are identical"
 beta_1,GPT-2 Large + LoRA r32,LoRA + lexical steering (b=1),160,11.88,0.3571,0.32,0.0714,0.2609,0.1429,0.069,0.0,replaces the hardcoded 13.12 proxy previously used for b=1 in fig4
 beta_15,GPT-2 Large + LoRA r32,LoRA + lexical steering (b=15),160,18.12,0.6667,0.1818,0.6452,0.2222,0.1739,0.0,0.0,
+baseline_qwen,"Qwen2.5-1.5B-Instruct (4-bit, no fine-tuning)","prompting only, no fine-tuning, no steering",160,21.88,0.4583,0.5,0.5806,0.0952,0.0741,0.32,0.0,"unassisted baseline, equal generation budget (60 tokens)"
+baseline_phi3,"Phi-3-mini-4k-instruct (4-bit, no fine-tuning)","prompting only, no fine-tuning, no steering",160,25.62,0.4651,0.5143,0.5946,0.1395,0.2143,0.4,0.0,"unassisted baseline, equal generation budget (60 tokens)"

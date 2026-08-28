@@ -1,0 +1,52 @@
+config_name: baseline_phi3
+technique: prompting only, no fine-tuning, no steering
+model: Phi-3-mini-4k-instruct (4-bit, no fine-tuning)
+model_id: microsoft/Phi-3-mini-4k-instruct
+quantization: 4-bit nf4, double quant, fp16 compute
+prompt_style: native chat template, stem primes the assistant turn
+instruction: Continue the story so that it clearly expresses the emotion {emotion}.
+  Write two or three sentences of narrative prose. Do not explain, label, or comment
+  on the emotion, just tell the story.
+decoding: topp
+decoding_params:
+  do_sample: true
+  temperature: 0.8
+  top_p: 0.92
+max_new_tokens: 60
+repetition_penalty: 1.2
+manifest: data/processed/test_prompts_160.csv
+manifest_rows: 160
+judge: SamLowe/roberta-base-go_emotions
+fairness_notes:
+- 'equal generation budget: max_new_tokens=60, same as every GPT-2 run'
+- same manifest, same judge, same target labels
+- prompt format varies per model by design, forcing one format would confound
+- stem primes the assistant turn, so no instruction-following burden GPT-2 never had
+- instruction is at least as explicit as GPT-2's bare conditioning tag, never less
+git:
+  git_commit: f3dc1ebfbbc3adc7a8a31144a91ad228a54f3015
+  git_branch: main
+  git_tree_clean: false
+  git_dirty_files:
+  - esults/all_configs_summary.csv
+  - HANDOFF_tasks_B_and_rank.md
+  - baseline_qwen_results.csv
+  - experiments/experiment_011_baseline_qwen/
+  - src/6_ablations/fetch_shard.py
+  - src/6_ablations/run_lm_baseline.py
+environment:
+  python: 3.11.14
+  platform: Windows-10-10.0.26200-SP0
+  torch: 2.10.0+cu128
+  transformers: 5.3.0
+  peft: 0.18.1
+  cuda_available: true
+  cuda: '12.8'
+  cudnn: 91002
+  gpu: NVIDIA GeForce RTX 3060 Laptop GPU
+  vram_gib: 6.0
+run_command: python.exe src/6_ablations/run_lm_baseline.py --model phi3
+reference:
+  source_file: src/5_evaluation/07_evaluate_hybrid.py
+  steering_sha256: e864537764c260ed616a7950a8290a72222d5bf702a15e407a890e7163f3d714
+  steering_loaded_live: true
