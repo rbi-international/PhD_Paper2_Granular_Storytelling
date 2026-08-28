@@ -1,0 +1,11 @@
+{
+  "N": 160,
+  "top1_accuracy": 18.12,
+  "f1_Joy": 0.6667,
+  "f1_Fear": 0.1818,
+  "f1_Sadness": 0.6452,
+  "f1_Anger": 0.2222,
+  "f1_Trust": 0.1739,
+  "f1_Surprise": 0.0,
+  "f1_Anticipation": 0.0
+}

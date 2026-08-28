@@ -191,11 +191,18 @@ def fig3b():
     print("Fig3b saved")
 
 def fig4():
-    # beta ablation. b=5 sweet spot, b=15 collapse. b=1 now read from a REAL run
-    # (steered_b1_results.csv) if present, else falls back to the old 13.12 proxy.
-    b1 = acc("steered_b1_results.csv") if os.path.exists("steered_b1_results.csv") else 13.12
-    b5 = acc("hybrid_results.csv") if os.path.exists("hybrid_results.csv") else 47.50
-    b15 = acc("aggressive_steered_results.csv") if os.path.exists("aggressive_steered_results.csv") else 6.67
+    # Beta ablation, now on a SINGLE manifest. All three points are measured on the
+    # revision manifest (20 held-out neutral stems), so the trend line has one footing
+    # and needs no asterisk. Previously b=5 read hybrid_results.csv (47.50, original
+    # manifest) and b=15 read aggressive_steered_results.csv (6.67, original manifest),
+    # while b=1 was already revision manifest. A line through mixed manifests is exactly
+    # the defect the Fig1 split exists to prevent, so it is removed here too.
+    #   b=1  steered_b1_results.csv
+    #   b=5  decoding_topp_results.csv (identical config to the 47.50% run, new manifest)
+    #   b=15 steered_b15_results.csv
+    b1 = acc("steered_b1_results.csv")
+    b5 = acc("decoding_topp_results.csv")
+    b15 = acc("steered_b15_results.csv")
     beta = [1.0, 5.0, 15.0]; accs = [b1, b5, b15]
     fig, ax = plt.subplots(figsize=(9, 6), dpi=300)
     ax.plot(beta, accs, "o-", color="#c00000", lw=2.5, markersize=11,
@@ -205,9 +212,13 @@ def fig4():
                     xytext=(0, 14), ha="center", fontsize=11, fontweight="bold")
     ax.set_xlabel("Boost Factor (beta)", fontsize=12)
     ax.set_ylabel("Top-1 Accuracy (%)", fontsize=12)
-    ax.set_title("Steering Strength Ablation (GPT-2 Large + Hybrid)",
+    ax.axhline(12.5, ls="--", color="gray", lw=1, alpha=0.7)
+    ax.text(15.0, 13.4, "random chance (8-class)", ha="right", fontsize=8,
+            color="gray", style="italic")
+    ax.set_title("Steering Strength Ablation (GPT-2 Large + Hybrid)\n"
+                 "(all points on the revision manifest, 20 held-out neutral stems)",
                  fontsize=13, fontweight="bold", pad=12)
-    ax.set_ylim(0, 54); ax.set_xticks(beta); ax.grid(True, alpha=0.3)
+    ax.set_ylim(0, max(accs) + 10); ax.set_xticks(beta); ax.grid(True, alpha=0.3)
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     plt.tight_layout()
     plt.savefig(f"{OUT}/Fig4_Beta_Ablation.png", dpi=300, bbox_inches="tight")
