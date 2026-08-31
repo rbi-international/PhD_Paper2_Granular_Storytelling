@@ -1,0 +1,13 @@
+{
+  "N": 160,
+  "top1_accuracy": 35.62,
+  "f1_Joy": 0.7895,
+  "f1_Fear": 0.75,
+  "f1_Sadness": 0.7059,
+  "f1_Anger": 0.4,
+  "f1_Trust": 0.0909,
+  "f1_Surprise": 0.4444,
+  "f1_Anticipation": 0.0952,
+  "peak_vram_gib": 3.67,
+  "mean_seconds_per_story": 56.9
+}

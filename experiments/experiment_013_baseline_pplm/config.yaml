@@ -1,0 +1,42 @@
+config_name: baseline_pplm
+technique: PPLM gradient-based CTG (Dathathri et al. 2020)
+model: gpt2-large (frozen) + PPLM discriminator head
+backbone: gpt2-large
+attribute_model: linear head over GPT-2 mean-pooled hidden states
+attribute_model_note: 'RoBERTa cannot serve as PPLM''s attribute model: it consumes
+  discrete tokens, so no gradient path exists to GPT-2''s past key/values. This is
+  the standard PPLM discriminator from the original paper. Attribute model and evaluation
+  judge therefore stay separate, avoiding circularity.'
+pplm_num_iterations: 3
+pplm_step_size: 0.02
+pplm_gamma: 1.0
+pplm_gm_scale: 0.95
+pplm_kl_scale: 0.01
+max_new_tokens: 60
+manifest: data/processed/test_prompts_160.csv
+manifest_rows: 160
+judge: SamLowe/roberta-base-go_emotions
+git:
+  git_commit: f612c4d5c81988ad51c4724c28fe9a80b061112c
+  git_branch: main
+  git_tree_clean: false
+  git_dirty_files:
+  - PPLM_TASK.md
+  - experiments/experiment_013_baseline_pplm/
+  - src/6_ablations/run_pplm_baseline.py
+environment:
+  python: 3.11.14
+  platform: Windows-10-10.0.26200-SP0
+  torch: 2.10.0+cu128
+  transformers: 5.3.0
+  peft: 0.18.1
+  cuda_available: true
+  cuda: '12.8'
+  cudnn: 91002
+  gpu: NVIDIA GeForce RTX 3060 Laptop GPU
+  vram_gib: 6.0
+run_command: python.exe src/6_ablations/run_pplm_baseline.py --backbone gpt2-large
+reference:
+  source_file: src/5_evaluation/07_evaluate_hybrid.py
+  steering_sha256: e864537764c260ed616a7950a8290a72222d5bf702a15e407a890e7163f3d714
+  steering_loaded_live: true
