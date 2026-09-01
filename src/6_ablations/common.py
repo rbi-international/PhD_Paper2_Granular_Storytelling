@@ -240,18 +240,27 @@ def self_test(verbose=True):
 # ---------------------------------------------------------------------------
 # Models and data
 # ---------------------------------------------------------------------------
-def load_hybrid_model(device=None):
-    """GPT-2 Large plus the LoRA adapter behind the 47.50% result."""
+def load_hybrid_model(device=None, adapter_path=None):
+    """
+    GPT-2 Large plus a LoRA adapter.
+
+    adapter_path defaults to ADAPTER_PATH, the adapter behind the 47.50% result, so every
+    caller written before the rank sweep keeps its exact previous behaviour. The parameter
+    exists only so the rank sweep can point at a freshly trained adapter per rank. Nothing
+    else about the evaluation changes: same base model, same tokenizer, same eval mode.
+    """
     import torch
     from transformers import GPT2LMHeadModel, GPT2Tokenizer
     from peft import PeftModel
 
+    if adapter_path is None:
+        adapter_path = ADAPTER_PATH
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
     tokenizer = GPT2Tokenizer.from_pretrained(BASE_MODEL_ID)
     tokenizer.pad_token = tokenizer.eos_token
     base = GPT2LMHeadModel.from_pretrained(BASE_MODEL_ID)
-    model = PeftModel.from_pretrained(base, ADAPTER_PATH).to(device)
+    model = PeftModel.from_pretrained(base, adapter_path).to(device)
     model.eval()
     return model, tokenizer, device
 
@@ -558,28 +567,38 @@ def append_to_summary(config_name, model_name, technique, metrics, caveat=""):
 # The shared run loop, used by all three runners
 # ---------------------------------------------------------------------------
 def execute_run(config_name, output_csv, technique, tier, boost_factor, decoding,
-                model_label="GPT-2 Large + LoRA r32", caveat=""):
+                model_label="GPT-2 Large + LoRA r32", caveat="",
+                adapter_path=None, extra_provenance=None):
     """
     One complete experiment: 160 generations, scored, saved and summarised.
 
     Reproducible from a single command, resumable after a crash, and every run leaves a
     config.yaml recording exactly what produced it.
+
+    adapter_path and extra_provenance were added for the rank sweep and are both optional.
+    Omitting them reproduces the pre-sweep behaviour exactly, which is what keeps the eight
+    completed Task A runs valid without re-running them. extra_provenance is merged into
+    config.yaml, so a caller can record the facts only it knows (rank, alpha, training
+    time) without this function needing to know about them.
     """
     import json
 
     print(f"=== {config_name} ===\n")
     self_test()
 
+    if adapter_path is None:
+        adapter_path = ADAPTER_PATH
+
     rows = load_prompt_set()
     tier_lexicon = lexicon_tiers.get_lexicon(tier)
     exp_dir = find_or_create_experiment_dir(config_name, len(rows))
 
-    write_provenance(exp_dir, {
+    provenance = {
         "config_name": config_name,
         "technique": technique,
         "model": model_label,
         "base_model": BASE_MODEL_ID,
-        "adapter": os.path.relpath(ADAPTER_PATH, PROJECT_ROOT).replace("\\", "/"),
+        "adapter": os.path.relpath(adapter_path, PROJECT_ROOT).replace("\\", "/"),
         "lexicon_tier": str(tier),
         "lexicon_word_counts": lexicon_tiers.tier_word_counts(tier),
         "lexicon_words": tier_lexicon,
@@ -592,7 +611,10 @@ def execute_run(config_name, output_csv, technique, tier, boost_factor, decoding
         "manifest_rows": len(rows),
         "judge": judge.TEACHER_NAME,
         "caveat": caveat,
-    })
+    }
+    if extra_provenance:
+        provenance.update(extra_provenance)
+    write_provenance(exp_dir, provenance)
 
     writer = ResumableWriter(
         os.path.join(exp_dir, "partial_results.csv"),
@@ -602,7 +624,7 @@ def execute_run(config_name, output_csv, technique, tier, boost_factor, decoding
     if done:
         print(f"  resuming, {len(done)} of {len(rows)} rows already complete\n")
 
-    model, tokenizer, device = load_hybrid_model()
+    model, tokenizer, device = load_hybrid_model(adapter_path=adapter_path)
     judge_model, judge_tokenizer, _ = judge.load_judge(device)
     print(f"  model and judge loaded on {device}\n")
 
