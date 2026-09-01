@@ -1,5 +1,0 @@
-Model Architecture,Parameters,Technique,Top-1 Accuracy,Joy F1,Fear F1,Sadness F1,Inference Speed (est)
-GPT-2 Medium (Baseline),355M,LoRA (Rank 8),6.67%,0.07,0.17,0.20,Fast
-GPT-2 Medium + Steering,355M,LoRA + Lexical Boost,20.00%,0.53,0.59,0.17,Medium
-GPT-2 Large (Optimized),774M,LoRA (Instruction Tuned),13.12%,0.16,0.08,0.17,Slow
-GPT-2 Large + Hybrid Steering,774M,LoRA + Instruction + Steering,47.50%,0.73,0.82,0.70,Medium

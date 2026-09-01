@@ -3,52 +3,78 @@
 Read this after CLAUDE.md. This is the current state and next actions. When a section is
 done, move it to "Completed" at the bottom. When a decision changes, edit it here.
 
-Last updated: 2026-08-26
+Last updated: 2026-09-01
 
 ## Where we are
-- Repo on GitHub (private), local and origin in sync.
-- Task A scaffolding done: frozen 160-prompt manifest, lexicon tiers with drift guard,
-  experiment folder structure.
-- Manifest regenerated from held-out WritingPrompts and neutrality-filtered (see Completed).
-- Environment verified (study_torch, bitsandbytes present, no installs needed).
-- CLAUDE.md corrected: export syntax for Git Bash, cuDNN 9.10.2.
-- NOT yet built: src/6_ablations/common.py and the three runners.
+- Repo on GitHub (private), local and origin in sync, tree clean.
+- Tasks A, B and C are all DONE and committed (see Completed). Eleven runs are in
+  results/all_configs_summary.csv with per-emotion F1, and all six figures were
+  regenerated on 2026-08-31 after the last result CSV landed.
+- Remaining work is ONE experiment: the clean LoRA-rank sweep (below), then the
+  consolidated paper table, then paper writing.
 
-## NEXT ACTION: commit the data layer, then build common.py
+## NEXT ACTION: the clean LoRA-rank sweep (see RANK_SWEEP_TASK.md for the full spec)
 
-### Commit first (pure data + docs, clean checkpoint before result-producing code):
-Commit together: the neutrality-filtered manifest, its provenance/sidecar file, this
-HANDOFF update, and the corrected CLAUDE.md. Reason: every run stamps the commit hash of
-the code that made it, so freeze the INPUT manifest in its own commit before the code that
-consumes it. If a run looks wrong later, you can tell manifest-changed from code-changed by
-looking at two commits instead of one.
+RANK_SWEEP_TASK.md is the authority on this task. Summary of what changed and why:
 
-### Then build src/6_ablations/common.py (GATED: touches models, show plan + structure first)
-Shared spine imported by all runners:
-- SteeringProcessor: copy from 07_evaluate_hybrid.py (the 47.50% version), guard vs drift.
-- load_judge() / classify(): the RoBERTa GoEmotions to Plutchik-8 judge, unchanged.
-- load_hybrid_model(): GPT-2 Large + models/gpt2_large_optimized.
-- load_prompt_set(): reads the frozen manifest.
-- ResumableWriter: flush per row, resume from last prompt_id after a crash.
-- write_provenance(): config.yaml with seed, commit hash, versions, hardware.
+REVERSAL, recorded here so the old note cannot mislead later. Earlier versions of this
+file said "LoRA rank ablation (8/32/64/128) already exists in prior CSVs; do NOT re-run,
+just have the summary script read them." That guidance is OVERTURNED. The old rank CSVs
+(evaluation_results_baseline / optimized / special / instruction) are unusable as a sweep:
+they have inconsistent N (70, 105, 160, 160), mixed formats, two of them lack the Story
+column, and they were produced on the ORIGINAL fixed-stem manifest, not the revision
+manifest. They also vary model size and technique alongside rank, so they do not isolate
+rank at all. They must NOT be added to all_configs_summary.csv. Rank is being re-run
+cleanly on the revision manifest instead.
 
-## Then: the seven Task A runs (about 1.5 to 2 hours on the 3060)
-All read the frozen manifest. All output Target,Detected,Story CSVs at repo root.
-1. Lexicon tier 15 (full)   -> lexicon_15_results.csv   (tier holds 13-15 words, note in config)
-2. Lexicon tier 10          -> lexicon_10_results.csv
-3. Lexicon tier 5           -> lexicon_5_results.csv
-4. Decoding greedy          -> decoding_greedy_results.csv   (valid at N=160: stems are distinct now)
-5. Decoding top-k (k=50)    -> decoding_topk_results.csv
-6. Decoding top-p (p=0.92)  -> decoding_topp_results.csv
-7. Beta b=1.0               -> steered_b1_results.csv        (replaces hardcoded 13.12 proxy in fig4)
-LoRA rank ablation (8/32/64/128) already exists in prior CSVs; do NOT re-run, just have the
-summary script read them.
+The sweep varies ONLY rank, over {8, 32, 64, 128}:
+- lora_alpha held FIXED at 64 across all four, matching production (r=32, alpha=64).
+  The training convention was alpha = 2*rank, so fixed alpha makes effective scaling
+  (alpha/rank) swing from 8.0 at rank-8 to 0.5 at rank-128. This is intentional and gets
+  stated plainly in the paper: a flat sweep despite 16x scaling variation strengthens the
+  finding that neither adapter capacity nor scaling is the operative factor.
+- Everything else frozen from 06_train_gpt2_large_optimized.py: same data, seed,
+  epochs=10, LR=2e-4, batch=1, grad-accum=32, same target modules and modules_to_save.
+- Evaluation identical to Task A via common.py: revision manifest, same RoBERTa judge,
+  max_new_tokens=60, top-p decoding (match production, NOT greedy, so rank and decoding
+  do not entangle), steering ON at boost=5.0 with the full lexicon.
 
-## Then: consolidate + figures
-Append each run to results/all_configs_summary.csv (config, model, technique, N, top1_acc,
-then per-emotion F1 for Joy, Fear, Sadness, Anger, Trust, Surprise, Anticipation).
-Regenerate results/figures/ at 300 DPI via make_figures.py (already fig4-patched to read
-steered_b1_results.csv automatically).
+HYPOTHESIS, recorded before seeing any numbers so interpretation stays honest: with
+steering ON, rank should matter little (flat-ish sweep). The paper's thesis is that
+steering, not capacity, is the dominant lever. A flat sweep confirms this from a 4th axis
+(the others being model size Medium vs Large, the lexicon-size cliff, and decoding). If
+rank matters a lot even with steering, that is a surprise to engage honestly, not smooth.
+
+Gates and tolerances:
+- rank-32 runs FIRST and ALONE. It must land near 38.12% (production hybrid on the
+  revision manifest, the decoding_topp / lexicon_15 value). If it does not, something
+  differs from production: STOP and reconcile before training the other three. rank-32
+  also times one training run so the real per-rank cost is known before committing to four.
+- rank-128 runs LAST and is OOM-tolerant. If it does not fit alongside modules_to_save in
+  6GB, report a 3-point sweep (8/32/64) and note "rank-128 exceeded the 6GB budget",
+  which is itself on-thesis for a resource-constrained paper. It must not block the others.
+
+Outputs: rank_8_results.csv, rank_32_results.csv, rank_64_results.csv,
+rank_128_results.csv (Target, Detected, Story), one experiments/experiment_XXX/ per rank
+with full provenance including training time and the alpha/scaling note.
+
+## Then: consolidate, figures, paper table
+- Add all four rank rows to results/all_configs_summary.csv with per-emotion F1.
+- Regenerate results/figures/ at 300 DPI via make_figures.py. Point FIG1_CONFIGS at the
+  CLEAN rank CSVs, not the old ones.
+- Regenerate the consolidated paper table ONCE, at the end, from all_configs_summary.csv,
+  with the GPT-2 Medium baseline at 10.00% (never 6.67%). The old
+  results/comparisons/final_paper_table.csv has been DELETED as a stale pre-revision
+  artifact that carried the wrong 6.67%.
+- IMPORTANT, found while deleting it: the file was not orphaned, it had a GENERATOR.
+  src/5_evaluation/09_generate_paper_tables.py hardcodes all four table rows as literal
+  strings, including "6.67%" at line 25, and writes them straight to that path. Deleting
+  the CSV alone does not remove the trap, because running that script recreates it with
+  the wrong number. That script lives under the frozen "do not edit" original pipeline,
+  so it has been left untouched deliberately. Consequence: do NOT run
+  09_generate_paper_tables.py again. The end-of-project table gets a NEW generator in
+  src/6_ablations/ that reads all_configs_summary.csv instead of hardcoding, so the
+  number cannot drift from the runs again.
 
 ## Paper-writing consequences to record later (not code)
 - Ablation prompt regime differs from the original 47.50% headline run (which used fixed
@@ -58,12 +84,9 @@ steered_b1_results.csv automatically).
   varied set would be needed. Not now.)
 - Provenance sentence the paper can now make (kept literally true by the neutrality filter):
   "we verified the stems themselves carry no target-emotion signal."
-
-## Later (Tasks B and C, not started, separate gating)
-- Task B: Phi-3-mini-4k-instruct and Qwen2.5-1.5B-Instruct, inference-only, 4-bit, same
-  160 prompts, correct chat template each. -> baseline_phi3_results.csv, baseline_qwen_results.csv
-- Task C: PPLM on GPT-2 using the RoBERTa judge as attribute model, same 160 prompts.
-  Timebox it; if it will not run stably in 6GB, stop and fall back to A+B. Skip GeDi.
+- The rank sweep's fixed-alpha choice needs its one honest sentence (see above).
+- Old rank CSVs are NOT a rank ablation and must not be presented as one. If any earlier
+  draft text implies they are, fix that text.
 
 ## Completed
 
@@ -113,3 +136,37 @@ is the criterion that matters, but do not overclaim these as human-neutral in th
 NOTE: kept the paired design at 20 stems times 8 emotions. The line "select 160
 deterministically" would mean 160 distinct stems, which is the confounded option we
 explicitly rejected. Flagging in case that was intended differently.
+
+### Step 2: src/6_ablations/common.py and the runners  (DONE)
+Shared spine built and in use by every runner since: SteeringProcessor loaded live from
+07_evaluate_hybrid.py with a SHA256 drift guard, load_judge/classify, load_hybrid_model,
+load_prompt_set, ResumableWriter (per-row flush, resume keyed on frozen prompt_id),
+write_provenance, summarize/append_to_summary, and the shared execute_run loop.
+
+### Task A: seven ablation runs  (DONE, commits 04dee57 and f3dc1eb)
+All 160 rows, revision manifest, Target/Detected/Story, one experiment folder each with
+config.yaml provenance. Results in results/all_configs_summary.csv:
+  decoding_greedy 44.38 | lexicon_10 38.75 | lexicon_15 38.12 | decoding_topp 38.12
+  decoding_topk 36.25 | lexicon_5 22.50 | beta_1 11.88 | beta_15 18.12
+b=15 was added on the revision manifest so Fig4 sits on a single footing: fig4 now reads
+b=1 from steered_b1_results.csv, b=5 from decoding_topp_results.csv and b=15 from
+steered_b15_results.csv, all three on the same manifest, so the beta curve needs no
+asterisk. Note the 6.67% b=15 figure in CLAUDE.md refers to the ORIGINAL-manifest
+aggressive run (N=120), which is a different run from this one.
+
+### Task B: Phi-3 and Qwen baselines  (DONE, commit f612c4d)
+Inference-only, 4-bit, correct chat template each, same 160 prompts, equal 60-token
+generation budget. baseline_phi3 25.62, baseline_qwen 21.88. Both lose to steered GPT-2.
+
+### Task C: PPLM baseline  (DONE, commit 97b86e0)
+PPLM on gpt2-large using a linear attribute head over frozen hidden states, same 160
+prompts. 35.62%, peak 3.67 GiB, 56.9 s/story. It runs in the 6GB budget and lands just
+below our control at 6.2x the per-story cost, which is the comparison the paper wants.
+GeDi skipped as planned.
+
+### Housekeeping alongside the rank sweep  (DONE)
+Deleted results/comparisons/final_paper_table.csv: a stale pre-revision artifact dated
+Feb 10 that carried 6.67% for the GPT-2 Medium baseline against the CLAUDE.md mandate of
+10.00%. Nothing read it (make_figures.py computes accuracy from the raw result CSVs), and
+it was a trap if copied into the manuscript. The consolidated table gets regenerated once
+at the end from all_configs_summary.csv.
