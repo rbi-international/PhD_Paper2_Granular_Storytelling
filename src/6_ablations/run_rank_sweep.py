@@ -302,20 +302,25 @@ def train_one_rank(rank, smoke_steps=None):
         **({"max_steps": smoke_steps, "save_strategy": "no"} if probing else {}),
     )
 
-    trainer = Trainer(
-        model=model,
-        args=args,
-        train_dataset=tokenized,
-        data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
-    )
-
     resume = (not probing) and has_checkpoint(rank)
     if resume:
         print(f"  resuming rank {rank} from an existing checkpoint")
 
     print(f"  training{' (PROBE)' if probing else ''} ...")
     train_start = time.time()
+
+    # Trainer construction is INSIDE the guard on purpose. Trainer.__init__ moves the
+    # model onto the GPU, which is the first large allocation of the run, so at rank 128
+    # it is a likely place to run out of memory. Building it outside the guard would let
+    # that OOM escape uncaught, with no experiment folder and no provenance written,
+    # which is exactly the failure the guard exists to prevent.
     try:
+        trainer = Trainer(
+            model=model,
+            args=args,
+            train_dataset=tokenized,
+            data_collator=DataCollatorForLanguageModeling(tokenizer, mlm=False),
+        )
         trainer.train(resume_from_checkpoint=True if resume else None)
     except torch.cuda.OutOfMemoryError as exc:
         raise _oom(rank, exc, trainable, total)

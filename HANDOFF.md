@@ -6,14 +6,57 @@ done, move it to "Completed" at the bottom. When a decision changes, edit it her
 Last updated: 2026-09-01
 
 ## Where we are
-- Repo on GitHub (private), local and origin in sync, tree clean.
-- Tasks A, B and C are all DONE and committed (see Completed). Eleven runs are in
-  results/all_configs_summary.csv with per-emotion F1, and all six figures were
-  regenerated on 2026-08-31 after the last result CSV landed.
-- Remaining work is ONE experiment: the clean LoRA-rank sweep (below), then the
-  consolidated paper table, then paper writing.
+- Repo on GitHub (private), tree clean. NOTE: local is AHEAD of origin, the rank-sweep
+  commits have not been pushed yet. Push at the end with the finishing work.
+- Tasks A, B and C are all DONE and committed (see Completed).
+- rank-32 anchor DONE and committed: 41.25%, 7.41 h, peak 5.65 GiB.
+- 12 runs are in results/all_configs_summary.csv with per-emotion F1. Figures were last
+  regenerated on 2026-08-31 and are now STALE, they do not include rank_32 or the ranks
+  still to come.
+- Remaining: ranks 8, 64 and 128 (one overnight chain), then figures, the new paper-table
+  generator, push, and then writing. These are the LAST experiments in the paper.
 
-## NEXT ACTION: the clean LoRA-rank sweep (see RANK_SWEEP_TASK.md for the full spec)
+## Run log for the sweep so far
+    timing probe  r32   39.52 s per optimizer step, 760 steps, estimated 8.35 h
+    rank 32             41.25%, actual 7.41 h (probe overestimated by 11%), peak 5.65 GiB
+    rank 8              not started, expect about 7.5 h
+    rank 64             not started, expect about 7.5 h, predicted peak about 5.96 GiB
+    rank 128            not started, expect OOM within minutes (needs about 0.9 GiB more
+                        than the 5.65 GiB measured at r32, against about 6.0 GiB usable)
+
+## NEXT ACTION: say "run", and the overnight rank chain starts
+
+Everything is staged and tested. Nothing is running right now. The single command is:
+
+    bash src/6_ablations/run_rank_chain.sh
+
+That trains and evaluates rank 8, then 64, then 128, back to back, committing each rank as
+it lands. Expect about 7.5 h per rank (rank-32 took 7.41 h), so roughly 15 h for 8 and 64,
+plus minutes for 128 to hit its expected OOM. Launch it in the background, not in a
+foreground shell.
+
+State at the time of writing: tree clean, HEAD at the rank-32 commit, GPU idle, 12 of 15
+planned runs complete. rank-32 is DONE and committed (41.25%). Ranks 8, 64 and 128 are the
+only experiments left in the entire paper.
+
+### What was verified before staging the chain (so it is not merely asserted)
+- The OOM bookkeeping path was FORCE-TESTED, not read: it exits 2, leaves
+  all_configs_summary.csv byte-identical, and writes a full config.yaml to its own
+  experiment folder. The synthetic test artifact was deleted afterwards so no fake OOM
+  record sits in experiments/.
+- A real gap was found and fixed while doing that. Trainer.__init__ moves the model onto
+  the GPU, which is the first large allocation and a likely OOM site at rank 128, and it
+  originally sat OUTSIDE the try block. An OOM there would have escaped uncaught with no
+  provenance written, which is exactly the failure the guard exists to prevent. Trainer
+  construction is now inside the guard.
+- The chain deliberately does NOT use "set -e", because rank-128's OOM must not kill the
+  bookkeeping or the ranks after it.
+- Per-rank commits, so a crash at hour 12 cannot take completed ranks down with it.
+- Checkpoints are NOT auto-deleted (about 3.5 GB per rank, disk has room). An unattended
+  script should not delete things while nobody is watching. Manual cleanup afterwards:
+  rm -rf models/rank_sweep/checkpoints
+
+## The rank sweep itself (see RANK_SWEEP_TASK.md for the full spec)
 
 RANK_SWEEP_TASK.md is the authority on this task. Summary of what changed and why:
 
@@ -75,6 +118,51 @@ with full provenance including training time and the alpha/scaling note.
   09_generate_paper_tables.py again. The end-of-project table gets a NEW generator in
   src/6_ablations/ that reads all_configs_summary.csv instead of hardcoding, so the
   number cannot drift from the runs again.
+
+## THE THREE WRITE-UP POINTS THAT MUST LAND EXACTLY AS FRAMED
+
+These were settled deliberately, two of them before any numbers existed. Do not soften or
+re-derive them at writing time.
+
+### 1. The measured retraining noise floor, about 3 points (report this prominently)
+rank_32 (41.25%) and decoding_topp / lexicon_15 (38.12%) are INDEPENDENT RETRAININGS of
+one configuration, differing only in random init: production never seeded, run_rank_sweep
+does. Their 3.13-point difference is a measured retraining variance for this setup, which
+is 5 stories out of 160 and 0.81 standard errors (one SE at p=0.4, N=160 is 3.87 points).
+
+This does double duty and reframes the WHOLE results table, not just the rank rows:
+  a. it makes the rank sweep interpretable, since any rank gap under about 3 points is
+     indistinguishable from retraining the same config; and
+  b. it retroactively justifies every "inside noise" call made elsewhere. lexicon_10 at
+     38.75 against lexicon_15 at 38.12 is a 0.63-point gap, now MEASURED as negligible
+     rather than merely asserted.
+Put one line in methods or results establishing the roughly 3-point retraining variance,
+then reference it wherever a gap is called negligible. Most papers in this space do not
+bother, and it costs nothing because the measurement already exists.
+
+### 2. The two summary rows for one config are deliberate, keep both
+all_configs_summary.csv holds rank_32 at 41.25 and decoding_topp at 38.12, which look like
+a duplicate somebody forgot to remove. They are not. Keep both, label them as independent
+retrainings, and cite them AS the noise-floor measurement. The sentence:
+  "rank_32 and the tier-15 / top-p run are independent retrainings of the production
+   configuration; their 3.13-point difference establishes the retraining noise floor."
+That converts an apparent redundancy into the deliberate measurement it actually is.
+
+### 3. The capacity claim stays NARROW (locked before any numbers existed)
+Rank was swept 16x at fixed alpha=64 with lm_head and wte trained in full throughout.
+Because those two dominate the parameter count, total trainable capacity varied only 1.66x
+(134.5M at r8 to 223.0M at r128). Therefore:
+  SUPPORTED:     "LoRA rank specifically does not matter under steering."
+  NOT SUPPORTED: "adapter capacity is not the operative factor."
+Capacity is never actually made small, so the broader claim would be an overreach a
+reviewer could catch with the same arithmetic. Hold this line even if a flat sweep makes
+the bigger claim tempting. The capacity-in-general argument is carried by the model-size
+result (Medium vs Large), the lexicon cliff and decoding. Keep the two claims in separate
+lanes. The paper sentence:
+  "Rank was swept 16x at fixed alpha=64 with lm_head and wte trained in full throughout;
+   because those two modules dominate the parameter count, total trainable capacity varied
+   only 1.66x (134.5M to 223.0M). The sweep therefore isolates the effect of LoRA rank
+   specifically, not adapter capacity in general."
 
 ## Paper-writing consequences to record later (not code)
 - Ablation prompt regime differs from the original 47.50% headline run (which used fixed
