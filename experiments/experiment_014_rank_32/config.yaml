@@ -1,0 +1,215 @@
+config_name: rank_32
+technique: LoRA + lexical steering (b=5.0), LoRA rank 32, alpha 64
+model: GPT-2 Large + LoRA r32
+base_model: gpt2-large
+adapter: models/rank_sweep/rank_32
+lexicon_tier: '15'
+lexicon_word_counts:
+  Joy: 15
+  Trust: 14
+  Fear: 15
+  Surprise: 13
+  Sadness: 15
+  Disgust: 14
+  Anger: 15
+  Anticipation: 13
+lexicon_words:
+  Joy:
+  - smile
+  - laugh
+  - happy
+  - delight
+  - wonderful
+  - bright
+  - cheer
+  - excited
+  - love
+  - joy
+  - grin
+  - warmth
+  - beautiful
+  - sun
+  - light
+  Trust:
+  - friend
+  - trust
+  - believe
+  - safe
+  - rely
+  - honor
+  - truth
+  - accept
+  - help
+  - support
+  - agree
+  - faith
+  - promise
+  - steady
+  Fear:
+  - dark
+  - scared
+  - afraid
+  - shiver
+  - scream
+  - run
+  - terror
+  - shadow
+  - cold
+  - panic
+  - threat
+  - nervous
+  - hide
+  - creep
+  - blood
+  Surprise:
+  - shock
+  - gasp
+  - sudden
+  - unexpected
+  - stunned
+  - wow
+  - flash
+  - blink
+  - amazed
+  - jolt
+  - startle
+  - wide
+  - abrupt
+  Sadness:
+  - cry
+  - tear
+  - loss
+  - grief
+  - sob
+  - sad
+  - alone
+  - miss
+  - pain
+  - hurt
+  - empty
+  - sorry
+  - dark
+  - weep
+  - broken
+  Disgust:
+  - gross
+  - nasty
+  - sick
+  - vile
+  - foul
+  - ugly
+  - hate
+  - repulse
+  - dirty
+  - rotten
+  - trash
+  - slime
+  - smell
+  - puke
+  Anger:
+  - rage
+  - furious
+  - hate
+  - yell
+  - shout
+  - mad
+  - angry
+  - fist
+  - hit
+  - burn
+  - fight
+  - stupid
+  - annoy
+  - kill
+  - slam
+  Anticipation:
+  - wait
+  - hope
+  - ready
+  - soon
+  - plan
+  - wish
+  - dream
+  - expect
+  - watch
+  - look
+  - forward
+  - prepare
+  - future
+boost_factor: 5.0
+decoding: topp
+decoding_params:
+  do_sample: true
+  temperature: 0.8
+  top_p: 0.92
+max_new_tokens: 60
+repetition_penalty: 1.2
+manifest: data/processed/test_prompts_160.csv
+manifest_rows: 160
+judge: SamLowe/roberta-base-go_emotions
+caveat: rank swept at fixed alpha=64 matching production, so effective scaling alpha/rank
+  = 2. lm_head and wte are trained in full at every rank (about 128.6M params), so
+  total trainable capacity varies only 1.66x across the sweep while rank varies 16x.
+  Supports a claim about LoRA rank specifically, not about adapter capacity in general.
+lora_rank: 32
+lora_alpha: 64
+effective_scaling_alpha_over_rank: 2.0
+training_seed: 42
+training_seed_note: 42 is the value production inherited from the TrainingArguments
+  default, made explicit here rather than chosen arbitrarily. This script also seeds
+  before adapter construction, which production did not, so LoRA init is identical
+  across the four ranks. rank-32 is therefore a faithful re-training of the production
+  recipe, not a bit-identical reproduction of the production artifact.
+training_recipe_source: src/3_training/06_train_gpt2_large_optimized.py
+training_recipe_frozen:
+  MODEL_ID: gpt2-large
+  MAX_LENGTH: 256
+  BATCH_SIZE: 1
+  GRAD_ACCUMULATION: 32
+  LEARNING_RATE: 0.0002
+  EPOCHS: 10
+  LORA_ALPHA: 64
+  LORA_DROPOUT: 0.1
+  TARGET_MODULES:
+  - c_attn
+  - c_proj
+  - c_fc
+  MODULES_TO_SAVE:
+  - lm_head
+  - wte
+  DATA_FILE: instruction_train_ready.csv
+training:
+  trained_now: true
+  train_seconds: 26682.8
+  train_minutes: 444.7
+  setup_seconds: 16.8
+  trainable_params: 152250880
+  total_params: 926280960
+  optimizer_steps: 760
+  peak_train_vram_gib: 5.65
+  resumed_from_checkpoint: false
+capacity_note: modules_to_save trains lm_head and wte in full at every rank, about
+  128.6M params, which dominates the trainable total. Rank varies 16x but total trainable
+  capacity varies only 1.66x (134.5M at r8 to 223.0M at r128). This sweep isolates
+  LoRA rank, not adapter capacity in general.
+git:
+  git_commit: 0a67de6d815f1d05759cb84cd086169d27298e83
+  git_branch: main
+  git_tree_clean: true
+  git_dirty_files: []
+environment:
+  python: 3.11.14
+  platform: Windows-10-10.0.26200-SP0
+  torch: 2.10.0+cu128
+  transformers: 5.3.0
+  peft: 0.18.1
+  cuda_available: true
+  cuda: '12.8'
+  cudnn: 91002
+  gpu: NVIDIA GeForce RTX 3060 Laptop GPU
+  vram_gib: 6.0
+run_command: python.exe src/6_ablations/run_rank_sweep.py --rank 32
+reference:
+  source_file: src/5_evaluation/07_evaluate_hybrid.py
+  steering_sha256: e864537764c260ed616a7950a8290a72222d5bf702a15e407a890e7163f3d714
+  steering_loaded_live: true
