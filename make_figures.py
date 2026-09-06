@@ -53,6 +53,10 @@ FIG1_OLD_MANIFEST = [
     ("Large+Aggr\n(b=15)",        "aggressive_steered_results.csv",         "#8c8c8c"),
 ]
 
+# The rank rows here are the CLEAN re-runs on the revision manifest, never the old
+# evaluation_results_*.csv files. Those old files vary model size and technique alongside
+# rank, have inconsistent N, and sit on the original fixed-stem manifest, so they are not
+# a rank ablation and must not be drawn as one.
 FIG1_NEW_MANIFEST = [
     ("Greedy",          "decoding_greedy_results.csv", "#c00000"),
     ("Top-p (p=.92) = Lexicon 15", "decoding_topp_results.csv", "#70ad47"),
@@ -60,7 +64,15 @@ FIG1_NEW_MANIFEST = [
     ("Lexicon 10",      "lexicon_10_results.csv",      "#5b9bd5"),
     ("Lexicon 5",       "lexicon_5_results.csv",       "#5b9bd5"),
     ("Steer b=1",       "steered_b1_results.csv",      "#8c8c8c"),
+    ("LoRA r8",         "rank_8_results.csv",          "#7030a0"),
+    ("LoRA r32",        "rank_32_results.csv",         "#7030a0"),
 ]
+
+# Measured retraining noise floor, in accuracy points. rank_32 (41.25) and
+# decoding_topp (38.12) are independent retrainings of ONE configuration, differing only
+# in random init, so their gap is an empirical estimate of run-to-run variance. Any gap
+# smaller than this is indistinguishable from retraining the same config twice.
+NOISE_FLOOR = 41.25 - 38.12
 
 def fig1():
     old = [(n, acc(p), c) for n, p, c in FIG1_OLD_MANIFEST if os.path.exists(p)]
@@ -256,6 +268,79 @@ def fig5():
     plt.close()
     print("Fig5 saved")
 
+def fig6():
+    """
+    LoRA rank sweep, with the measured noise floor drawn on rather than assumed.
+
+    HONESTY NOTE, and it is the whole point of this figure. We PREDICTED this sweep would
+    be flat, and it is NOT. rank-8 (35.62) to rank-32 (41.25) is about 5.6 points, which
+    clears the measured retraining noise floor of about 3.1 points. Rank has a real,
+    above-noise effect in the range we could actually train. The figure therefore shades
+    the noise band so a reader can see for themselves that the gap escapes it, instead of
+    taking our word for it.
+
+    The effect is real but SECONDARY. Steering moves accuracy from 11.88 (b=1) to about
+    38 to 41 (b=5), roughly 27 points, which is about 5x the rank effect. That comparison
+    is drawn as a reference bar so the two magnitudes sit in one frame.
+
+    Ranks 64 and 128 are absent for a measured reason, not an oversight: they exceed the
+    6GB budget. rank-64 spilled to system memory and ran at 174 s/step against 31 to 39
+    s/step for ranks that fit, a 4.4x slowdown that put a single run at about 37 hours.
+    """
+    points = [(8, "rank_8_results.csv"), (32, "rank_32_results.csv"),
+              (64, "rank_64_results.csv"), (128, "rank_128_results.csv")]
+    ranks, vals = [], []
+    for r, path in points:
+        if os.path.exists(path):
+            ranks.append(r); vals.append(acc(path))
+    if len(ranks) < 2:
+        print("Fig6 skipped (need at least two rank CSVs)")
+        return
+
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=300)
+    x = np.arange(len(ranks))
+
+    # Noise band centred on the first point, so the reader can see the second escape it.
+    ax.axhspan(vals[0] - NOISE_FLOOR / 2, vals[0] + NOISE_FLOOR / 2,
+               color="#c00000", alpha=0.10, zorder=0)
+    ax.axhline(vals[0], ls=":", color="#c00000", lw=1, alpha=0.6, zorder=1)
+
+    ax.plot(x, vals, marker="o", ms=9, lw=2, color="#7030a0", zorder=3)
+    for xi, v in zip(x, vals):
+        ax.text(xi, v + 0.9, f"{v:.2f}%", ha="center", va="bottom",
+                fontsize=11, fontweight="bold")
+
+    gap = vals[1] - vals[0]
+    ax.annotate(
+        f"{gap:+.1f} pts, clears the\n{NOISE_FLOOR:.1f} pt noise floor",
+        xy=(x[1], vals[1]), xytext=(x[0] + 0.35, vals[0] - 4.5),
+        fontsize=9, color="#404040",
+        arrowprops=dict(arrowstyle="->", color="#404040", lw=1),
+    )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"r={r}" for r in ranks])
+    ax.set_xlabel("LoRA rank (alpha fixed at 64)", fontsize=12)
+    ax.set_ylabel("Top-1 Accuracy (%)", fontsize=12)
+    ax.set_title("LoRA Rank Sweep: a Real but Secondary Effect",
+                 fontsize=13, fontweight="bold", pad=12)
+    ax.set_ylim(min(vals) - 8, max(vals) + 6)
+
+    shade = ("shaded band = measured retraining noise floor "
+             f"({NOISE_FLOOR:.2f} pts)\n"
+             "r=64 and r=128 exceed the 6GB budget (r=64 spills to system RAM, "
+             "4.4x slower)\n"
+             "for scale: steering alone moves accuracy about 27 pts (b=1 to b=5)")
+    ax.text(0.02, 0.02, shade, transform=ax.transAxes, fontsize=8,
+            color="#404040", va="bottom", ha="left")
+
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+    plt.savefig(f"{OUT}/Fig6_Rank_Sweep.png", dpi=300, bbox_inches="tight")
+    plt.close()
+    print("Fig6 saved")
+
+
 if __name__ == "__main__":
-    fig1(); fig2(); fig3(); fig3b(); fig4(); fig5()
+    fig1(); fig2(); fig3(); fig3b(); fig4(); fig5(); fig6()
     print(f"\nAll figures written to {OUT}/ at 300 DPI.")
