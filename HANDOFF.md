@@ -77,9 +77,59 @@ r64 was stopped deliberately after 16 of 760 steps. Rationale: 37 hours for one 
 point on a curve that is not load-bearing (r32 is the production config, and the thesis is
 about steering, not rank shape) was a bad trade against ETP3 time.
 
-## NEXT: writing, no more experiments
-1. Results section covering all three reviewer comments, using
-   results/comparisons/final_paper_table.csv and results/figures/.
+## NEXT ACTION (say "continue" and this starts): measure the latency ratio
+
+ONE measurement is outstanding. Everything else is done. Nothing is running.
+
+### Why: the 6.2x claim currently has NO measured denominator
+"PPLM costs 6.2x more per story than our method" has been repeated in the Task C commit
+message, in this file, and in conversation. Tracing it: PPLM's numerator IS recorded
+(experiments/experiment_013_baseline_pplm/metrics.json holds mean_seconds_per_story 56.9
+and peak_vram_gib 3.67). The hybrid DENOMINATOR is recorded NOWHERE. 56.9 / 6.2 implies
+about 9.2 s/story for the hybrid, and that number does not exist in the repo. Note also
+that an earlier "about 2 s/story" figure floated in conversation was never measured either.
+experiment_013 is the ONLY one of thirteen runs that recorded timing at all, because
+execute_run never measured it.
+
+This is the cleanest answer to reviewer comment 3, and it is exactly the kind of crisp
+checkable claim a reviewer divides out. If the denominator does not exist, the latency
+argument collapses on contact. About 25 minutes of GPU converts it from a liability into
+a strength.
+
+### DO NOT anchor on 6.2
+Report whatever the measurement says. If hybrid is about 9 s/story the ratio is about 6x;
+if hybrid is much faster the ratio is much larger. The point of measuring is that we do
+not know the answer yet. Delete "6.2x" from this file and from any draft once the real
+number exists.
+
+### The plan (model-touching, so it is GATED, confirm before writing)
+1. Add to common.execute_run's metrics, for every future run:
+     mean_seconds_per_story   wall clock around generate_one only, judge excluded
+     peak_vram_gib            torch.cuda.max_memory_allocated
+   Logged by default from now on so this gap cannot recur, and ETP3 inherits it free.
+2. New runner: timed hybrid on the EXACT production decoding_topp config. Same GPT-2 Large,
+   same adapter, steering on at boost 5.0, full tier-15 lexicon, same 160-stem revision
+   manifest, max_new_tokens=60, top-p. The ONLY difference from the existing decoding_topp
+   run is that this one records latency. If any generation parameter differs the ratio is
+   not clean. Output config name: hybrid_timed.
+3. Re-time PPLM on the SAME machine state, back to back. PPLM's 56.9 was measured in the
+   Task C session weeks ago; a ratio built from two numbers measured under unknown
+   conditions is weak. Even 20 stories is enough to confirm 56.9 still holds today. Use
+   run_pplm_baseline.py --smoke 20.
+4. Compute and report the REAL ratio.
+
+### Free bonus: a THIRD independent retraining for the noise floor
+hybrid_timed is the identical config to decoding_topp (38.12) and rank_32 (41.25), so its
+accuracy is a third draw of the same configuration. Sanity check: it must land in the 38 to
+41 band. If it does, the noise floor gets a third point and is stronger. If it lands wildly
+outside, something is wrong with the timing run and its latency should NOT be trusted.
+
+## Then: writing, no more experiments
+1. Full paper as a FORMATTED DOCUMENT (delivery choice; say so if plain prose is wanted
+   instead). Title, abstract, all sections, tables, figure callouts, framed for the
+   applied/systems venue, integration-not-invention, varied-stem headline with fixed-stem
+   context, the honest NOT-FLAT rank finding, the noise floor as a rigor feature, and the
+   measured latency ratio anchoring comment 3.
 2. Apply the four write-up points below verbatim.
 3. Submission. Then ETP3.
 
@@ -171,8 +221,11 @@ baseline_phi3 25.62, baseline_qwen 21.88. Both lose to steered GPT-2.
 
 ### Task C: PPLM baseline  (DONE, commit 97b86e0)
 PPLM on gpt2-large, linear attribute head over frozen hidden states. 35.62%, peak 3.67 GiB,
-56.9 s/story. Runs in the 6GB budget, lands just below our control at 6.2x the per-story
-cost. GeDi skipped as planned.
+56.9 s/story (recorded in metrics.json, NOT in config.yaml). Runs in the 6GB budget and
+lands just below our control. GeDi skipped as planned.
+CORRECTION: earlier versions of this line said "6.2x the per-story cost". That ratio was
+never measured, because the hybrid denominator was never recorded. Claim removed pending
+the measurement described under NEXT ACTION. Do not reinstate it from memory.
 
 ### Rank sweep  (DONE as a two-point sweep, commits 2d987f5 and 548290c)
 rank_32 41.25% (7h 25m) and rank_8 35.62% (6h 38m), both on the revision manifest with

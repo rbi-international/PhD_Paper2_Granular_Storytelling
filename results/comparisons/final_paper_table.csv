@@ -1,9 +1,9 @@
 Model,Parameters,Technique,N,Top-1 Accuracy,Joy F1,Fear F1,Sadness F1,Anger F1,Trust F1,Surprise F1,Anticipation F1,Manifest,Note
 GPT-2 Medium (baseline),355M,"LoRA r8, no steering",70,10.00%,,,,,,,,original (fixed stem),corrected from the 6.67% printed in the rejected submission
 GPT-2 Large + Hybrid steering,774M,LoRA r32 + instruction + lexical steering (b=5.0),160,47.50%,,,,,,,,original (fixed stem),"headline result of the original submission, fixed identical stems"
-GPT-2 Large + Hybrid (revision manifest),774M,LoRA r32 + lexical steering (b=5.0),160,41.25%,0.7895,0.8235,0.7647,0.4314,0.3226,0.3333,0.3077,revision (20 neutral stems),"rank swept at fixed alpha=64 matching production, so effective scaling alpha/rank = 2. lm_head and wte are trained in fu"
+GPT-2 Large + Hybrid (revision manifest),774M,LoRA r32 + lexical steering (b=5.0),160,41.25%,0.7895,0.8235,0.7647,0.4314,0.3226,0.3333,0.3077,revision (20 neutral stems),"NOISE FLOOR PAIR: this row and decoding_topp are INDEPENDENT RETRAININGS of the same production configuration, differing"
   greedy decoding,774M,"LoRA r32 + steering, greedy",160,44.38%,0.6977,0.8571,0.9000,0.4815,0.2857,0.2759,0.1667,revision (20 neutral stems),"greedy decoding is deterministic, so each of the 160 rows is a distinct prompt but repeat runs are identical"
-  top-p decoding,774M,"LoRA r32 + steering, top-p",160,38.12%,0.7368,0.7273,0.8108,0.4000,0.2667,0.2400,0.2609,revision (20 neutral stems),
+  top-p decoding,774M,"LoRA r32 + steering, top-p",160,38.12%,0.7368,0.7273,0.8108,0.4000,0.2667,0.2400,0.2609,revision (20 neutral stems),"NOISE FLOOR PAIR: this row and rank_32 are INDEPENDENT RETRAININGS of the same production configuration, differing only "
   top-k decoding,774M,"LoRA r32 + steering, top-k",160,36.25%,0.6061,0.7895,0.6111,0.4528,0.2500,0.3333,0.1667,revision (20 neutral stems),
   lexicon tier 15,774M,"LoRA r32 + steering, 15 words",160,38.12%,0.7368,0.7273,0.8108,0.4000,0.2667,0.2400,0.2609,revision (20 neutral stems),"tier 15 is the full published lexicon, which holds 13 to 15 words per emotion (mean 14.25), not a uniform 15"
   lexicon tier 10,774M,"LoRA r32 + steering, 10 words",160,38.75%,0.7727,0.8421,0.6667,0.3673,0.2963,0.2308,0.1818,revision (20 neutral stems),
