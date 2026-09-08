@@ -30,6 +30,7 @@ import platform
 import re
 import subprocess
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -532,6 +533,11 @@ def print_summary(config_name, metrics):
     print("  Per-emotion F1:")
     for emotion in EMOTIONS:
         print(f"    {emotion:<14} {metrics[f'f1_{emotion}']:.4f}")
+    if "mean_seconds_per_story" in metrics:
+        print(f"  Latency        {metrics['mean_seconds_per_story']:.2f} s per story "
+              f"(generation only, judge excluded, over {metrics['rows_timed']} rows)")
+    if "peak_vram_gib" in metrics:
+        print(f"  Peak VRAM      {metrics['peak_vram_gib']:.2f} GiB")
 
 
 def append_to_summary(config_name, model_name, technique, metrics, caveat=""):
@@ -634,11 +640,27 @@ def execute_run(config_name, output_csv, technique, tier, boost_factor, decoding
         for key in tier_lexicon
     }
 
+    # Latency instrumentation. The timer wraps generate_one ONLY, deliberately excluding
+    # judge.classify, because the number this produces gets compared against baselines
+    # that time generation alone (PPLM records mean_seconds_per_story the same way).
+    # Folding judging time into the denominator would silently understate any ratio built
+    # from it. Resumed rows are skipped by the counter too, so a run finished across two
+    # sessions reports the mean over rows THIS process actually generated rather than a
+    # figure diluted by work it did not do.
+    import torch
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+    generation_seconds = 0.0
+    generated_here = 0
+
     for index, row in enumerate(rows):
         if row["prompt_id"] in done:
             continue
+        started = time.time()
         story = generate_one(model, tokenizer, device, row, decoding,
                              processors[row["lexicon_key"]])
+        generation_seconds += time.time() - started
+        generated_here += 1
         detected = judge.classify(story, judge_model, judge_tokenizer, device)
         writer.append(row["prompt_id"], row["target_label"], detected, story)
         if (index + 1) % 20 == 0:
@@ -649,6 +671,17 @@ def execute_run(config_name, output_csv, technique, tier, boost_factor, decoding
 
     final = writer.rows()
     metrics = summarize([r["target_label"] for r in final], [r["detected"] for r in final])
+
+    # Recorded for every run from now on, so the repo never again holds a latency claim
+    # with no measured denominator. mean_seconds_per_story counts only rows generated in
+    # this process; rows_timed says how many that was, so a resumed run cannot be mistaken
+    # for a full-length timing measurement.
+    if generated_here:
+        metrics["mean_seconds_per_story"] = round(generation_seconds / generated_here, 2)
+        metrics["rows_timed"] = generated_here
+    if torch.cuda.is_available():
+        metrics["peak_vram_gib"] = round(torch.cuda.max_memory_allocated() / 1024 ** 3, 2)
+
     with open(os.path.join(exp_dir, "metrics.json"), "w", encoding="utf-8") as handle:
         json.dump(metrics, handle, indent=2)
 
