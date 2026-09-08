@@ -3,14 +3,15 @@
 Read this after CLAUDE.md. This is the current state and next actions. When a section is
 done, move it to "Completed" at the bottom. When a decision changes, edit it here.
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 ## Where we are
 ALL EXPERIMENTS ARE FINISHED. Nothing is running. The next phase is writing, not code.
 
 - Tasks A, B and C all done and committed. The LoRA-rank sweep is done as a TWO-POINT
   sweep (r8 and r32) plus a measured compute envelope for r64 and r128.
-- results/all_configs_summary.csv holds 13 runs with per-emotion F1 throughout.
+- results/all_configs_summary.csv holds 14 runs with per-emotion F1 throughout.
+- Latency is now measured and logged by execute_run for every future run.
 - All seven figures regenerated at 300 DPI, including the new Fig6 rank sweep.
 - results/comparisons/final_paper_table.csv regenerated from the summary, baseline at
   10.00%, by a NEW generator that reads the summary instead of hardcoding.
@@ -77,9 +78,45 @@ r64 was stopped deliberately after 16 of 760 steps. Rationale: 37 hours for one 
 point on a curve that is not load-bearing (r32 is the production config, and the thesis is
 about steering, not rank shape) was a bad trade against ETP3 time.
 
-## NEXT ACTION (say "continue" and this starts): measure the latency ratio
+## LATENCY: MEASURED, DONE (2026-09-08). The ratio is about 4.6x, NOT 6.2x.
 
-ONE measurement is outstanding. Everything else is done. Nothing is running.
+    hybrid   12.37 s/story   peak 4.03 GiB   (160 rows, generation only, judge excluded)
+    PPLM     56.4  s/story   peak 3.66 GiB   (20 rows, re-timed the same session)
+    PPLM     56.9  s/story                   (original 160-row run, 0.9% drift)
+    RATIO    4.56x using both of today's numbers, 4.60x using the original PPLM
+
+Report it as "approximately 4.6x". The retracted 6.2x implied a hybrid of 9.18 s/story;
+the true figure is 12.37, so the old claim overstated our advantage by about 35%. Measuring
+it was the right call.
+
+BOTH numbers come from the same machine state, measured back to back, so the ratio has no
+cross-session confound. The 0.9% drift between today's PPLM and the original confirms the
+machine is in a comparable state to the Task C session.
+
+### An honest nuance that must go in the paper
+PPLM uses LESS peak VRAM than we do (3.66 GiB against our 4.03 GiB). The correct claim is
+therefore about SPEED, not resources in general: "PPLM is approximately 4.6x slower per
+story than our method at comparable peak memory (3.66 GiB against 4.03 GiB)." Do not write
+that our method is cheaper across the board, because on memory it is marginally not.
+
+### CORRECTION: hybrid_timed is NOT a third noise-floor draw
+It was staged as one. It is not, and the run proved it: hybrid_timed is BYTE-IDENTICAL to
+decoding_topp, every story and every detection, accuracy 38.12% with identical per-emotion
+F1. generate_one seeds per row with torch.manual_seed and this run used the SAME production
+adapter, so identical output was guaranteed. rank_32 differs only because it is a different
+adapter from a separate training run.
+
+  THE NOISE FLOOR STILL RESTS ON TWO RETRAININGS: decoding_topp 38.12 and rank_32 41.25,
+  giving 3.13 points. It did NOT become three.
+
+The silver lining is real and worth one sentence in the paper: a full 160-story
+regeneration, in a different process on a different day, reproduced a prior run bit for
+bit. That is an exact-reproducibility demonstration stronger than most papers offer.
+
+## Superseded: the latency measurement plan (kept for the reasoning, now executed)
+
+DONE. Executed 2026-09-08, results above. Kept because the reasoning explains why the
+claim was retracted and how the measurement was designed.
 
 ### Why: the 6.2x claim currently has NO measured denominator
 "PPLM costs 6.2x more per story than our method" has been repeated in the Task C commit
@@ -124,7 +161,7 @@ accuracy is a third draw of the same configuration. Sanity check: it must land i
 41 band. If it does, the noise floor gets a third point and is stronger. If it lands wildly
 outside, something is wrong with the timing run and its latency should NOT be trusted.
 
-## Then: writing, no more experiments
+## NEXT: writing, no more experiments
 1. Full paper as a FORMATTED DOCUMENT (delivery choice; say so if plain prose is wanted
    instead). Title, abstract, all sections, tables, figure callouts, framed for the
    applied/systems venue, integration-not-invention, varied-stem headline with fixed-stem

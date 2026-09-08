@@ -24,11 +24,18 @@ generation parameter differed, the ratio would not be clean.
 Timing excludes the judge on purpose. PPLM's 56.9 s/story measures generation only, so
 folding judging time into our denominator would understate the ratio.
 
-FREE SANITY CHECK. Because this is the identical configuration to decoding_topp (38.12%)
-and rank_32 (41.25%), its accuracy is a THIRD independent draw of the production recipe.
-It must land in the 38 to 41 band. If it does, the retraining noise floor gains a third
-point. If it lands well outside, something is wrong with this run and its latency should
-not be trusted.
+SANITY CHECK, AND A CORRECTION TO AN EARLIER CLAIM. This was first described as a THIRD
+independent draw of the production recipe that would extend the noise floor. THAT WAS
+WRONG, and the first run proved it: the output is BYTE-IDENTICAL to decoding_topp, every
+story and every detection. generate_one seeds per row with torch.manual_seed, and this run
+loads the SAME production adapter, so same adapter plus same seed gives the same text.
+rank_32 differs only because it is a genuinely different adapter from a separate training
+run.
+
+So the band check below is a REPRODUCIBILITY check, not an independence check. Landing on
+decoding_topp's exact value confirms the pipeline is deterministic and that this run is
+configured identically to production, which is what makes the latency trustworthy. It does
+NOT add a third point to the retraining noise floor, which still rests on two adapters.
 
 Usage:
     python src/6_ablations/run_hybrid_timed.py
@@ -54,9 +61,9 @@ def main():
         decoding="topp",
         model_label="GPT-2 Large + LoRA r32",
         caveat=(
-            "identical configuration to decoding_topp and rank_32, run to measure "
-            "per-story latency. Its accuracy is a THIRD independent draw of the "
-            "production recipe and so extends the retraining noise-floor measurement."
+            "latency run. Byte-identical to decoding_topp (same adapter, same per-row "
+            "seeds, deterministic generation), so it is NOT an independent draw and does "
+            "NOT extend the noise floor. It demonstrates exact reproducibility."
         ),
         extra_provenance={
             "purpose": (
@@ -77,13 +84,15 @@ def main():
     accuracy = metrics["top1_accuracy"]
     latency = metrics.get("mean_seconds_per_story")
 
-    print("\n--- sanity check: third draw of the production config ---")
+    print("\n--- sanity check: deterministic reproduction of the production config ---")
     print(f"  decoding_topp  38.12%")
     print(f"  rank_32        41.25%")
     print(f"  this run       {accuracy:.2f}%")
     if BAND[0] <= accuracy <= BAND[1]:
-        print(f"  IN BAND ({BAND[0]} to {BAND[1]}). Latency is trustworthy and the noise")
-        print("  floor now rests on three independent retrainings.")
+        print(f"  IN BAND ({BAND[0]} to {BAND[1]}). Latency is trustworthy.")
+        print("  NOTE: landing on decoding_topp's exact value means this reproduced it")
+        print("  deterministically. That is a reproducibility result, NOT a third draw.")
+        print("  The noise floor still rests on two adapters: decoding_topp and rank_32.")
     else:
         print(f"  OUT OF BAND ({BAND[0]} to {BAND[1]}). Investigate before trusting this")
         print("  run's latency: an accuracy this far off suggests the configuration")
