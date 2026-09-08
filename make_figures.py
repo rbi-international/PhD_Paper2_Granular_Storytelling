@@ -237,20 +237,58 @@ def fig4():
     plt.close()
     print("Fig4 saved")
 
+def summary_accuracy(config_name):
+    """
+    Top-1 accuracy for one config, read from results/all_configs_summary.csv.
+
+    Figures that read the summary cannot drift from the numbers the paper quotes, because
+    both come from the same file. Reading a loose result CSV instead is how Fig5 came to
+    show a stale value: it pointed at hybrid_results.csv (the ORIGINAL fixed-stem manifest,
+    47.50%) while the manuscript reported the revision manifest throughout.
+    """
+    frame = pd.read_csv(os.path.join("results", "all_configs_summary.csv"))
+    row = frame[frame["config_name"] == config_name]
+    if row.empty:
+        raise KeyError(f"{config_name} is not in all_configs_summary.csv")
+    return float(row.iloc[0]["top1_accuracy"])
+
+
 def fig5():
-    # New lightweight baselines vs Hybrid. Only draws bars for files that exist.
+    """
+    Our method against the newer lightweight and CTG baselines.
+
+    ALL FOUR BARS COME FROM all_configs_summary.csv, never from a hardcoded number and
+    never from a loose result CSV, so this figure cannot disagree with the manuscript.
+
+    "Ours: Hybrid" is rank_32 (41.25%), the production configuration (LoRA r32, boost 5.0,
+    top-p, full lexicon) evaluated on the REVISION manifest of 160 held-out neutral stems.
+
+    It is deliberately NOT the 47.50% figure. That number is the same production config on
+    the ORIGINAL manifest, which used a single fixed stem ("The") for all 160 generations,
+    that is 8 distinct prompts times 20 samples. The revision manifest is the harder and
+    more honest evaluation, every prompt distinct and judge-verified neutral, so the paper
+    uses 41.25% as its defensible headline and this figure must agree with it.
+
+    47.50% is still shown in Fig1, correctly, inside the clearly separated and hatched
+    original-manifest group. That is a labelled historical comparison, not a headline
+    claim, and it is correct in that context.
+    """
     candidates = [
-        ("Phi-3 Mini",   "baseline_phi3_results.csv", "#8c8c8c"),
-        ("Qwen2.5 1.5B", "baseline_qwen_results.csv", "#8c8c8c"),
-        ("PPLM (GPT-2)", "baseline_pplm_results.csv", "#ed7d31"),
-        ("Ours: Hybrid", "hybrid_results.csv",        "#c00000"),
+        ("Phi-3 Mini",   "baseline_phi3", "#8c8c8c"),
+        ("Qwen2.5 1.5B", "baseline_qwen", "#8c8c8c"),
+        ("PPLM (GPT-2)", "baseline_pplm", "#ed7d31"),
+        ("Ours: Hybrid", "rank_32",       "#c00000"),
     ]
     labels, vals, colors = [], [], []
-    for name, path, color in candidates:
-        if os.path.exists(path):
-            labels.append(name); vals.append(acc(path)); colors.append(color)
+    for name, config_name, color in candidates:
+        try:
+            vals.append(summary_accuracy(config_name))
+        except (KeyError, FileNotFoundError):
+            print(f"Fig5: {config_name} missing from summary, bar omitted")
+            continue
+        labels.append(name); colors.append(color)
     if len(labels) < 2:
-        print("Fig5 skipped (new baseline CSVs not present yet)")
+        print("Fig5 skipped (summary rows not present yet)")
         return
     fig, ax = plt.subplots(figsize=(8, 6), dpi=300)
     bars = ax.bar(labels, vals, color=colors, edgecolor="black", linewidth=0.8, width=0.6)
@@ -258,10 +296,16 @@ def fig5():
         ax.text(b.get_x() + b.get_width()/2, v + 0.6, f"{v:.2f}%",
                 ha="center", va="bottom", fontsize=10, fontweight="bold")
     ax.axhline(12.5, ls="--", color="gray", lw=1, alpha=0.7)
+    # Every bar spans the full height from the axis, so there is no free space at the
+    # chance line itself. The label goes in the empty top-left region instead, naming the
+    # value so the dashed line needs no annotation of its own.
+    ax.text(-0.42, max(vals) + 5.5, "dashed line = random chance (8-class, 12.5%)",
+            ha="left", va="top", fontsize=8.5, color="gray", style="italic")
     ax.set_ylabel("Top-1 Accuracy (%)", fontsize=12)
-    ax.set_title("Our Method vs Newer Lightweight and CTG Baselines",
+    ax.set_title("Our Method vs Newer Lightweight and CTG Baselines\n"
+                 "(all four on the revision manifest, 20 held-out neutral stems, N=160)",
                  fontsize=13, fontweight="bold", pad=12)
-    ax.set_ylim(0, max(vals) + 7)
+    ax.set_ylim(0, max(vals) + 9)
     ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     plt.tight_layout()
     plt.savefig(f"{OUT}/Fig5_New_Baselines.png", dpi=300, bbox_inches="tight")
