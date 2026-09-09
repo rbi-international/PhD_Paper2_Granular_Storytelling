@@ -3,10 +3,15 @@
 Read this after CLAUDE.md. This is the current state and next actions. When a section is
 done, move it to "Completed" at the bottom. When a decision changes, edit it here.
 
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 ## Where we are
-ALL EXPERIMENTS ARE FINISHED. Nothing is running. The next phase is writing, not code.
+ALL EXPERIMENTS ARE FINISHED. Nothing is running. Nothing is left to measure.
+THE ONLY REMAINING WORK IS WRITING THE PAPER.
+
+State at save time: tree clean, origin in sync, HEAD at 1bae45c (Fig5 fix).
+GPU idle. Ollama is installed and may be running for the unrelated AcademiaHumanify
+project; it holds no VRAM when idle, but it will contend for the 6GB card if used.
 
 - Tasks A, B and C all done and committed. The LoRA-rank sweep is done as a TWO-POINT
   sweep (r8 and r32) plus a measured compute envelope for r64 and r128.
@@ -161,6 +166,107 @@ accuracy is a third draw of the same configuration. Sanity check: it must land i
 41 band. If it does, the noise floor gets a third point and is stronger. If it lands wildly
 outside, something is wrong with the timing run and its latency should NOT be trusted.
 
+## VERIFIED ENVIRONMENT (read from the system and all 14 configs on 2026-09-09)
+
+Use this block verbatim for the reproducibility statement. Every value was read from the
+machine or from committed configs, none from memory. All 14 experiment configs agree
+unanimously on every recorded field (each returned 14/14), so the environment did not
+drift across the runs and the currently installed env is what produced the results.
+
+    HARDWARE
+      GPU                NVIDIA GeForce RTX 3060 Laptop GPU  (Laptop variant, confirmed)
+      Compute capability 8.6 (Ampere GA106)
+      VRAM               6,441,926,656 bytes = 6.44 GB = 6.00 GiB = 6144 MiB
+      NVIDIA driver      591.74      [recorded post hoc, NOT captured in run provenance]
+
+    OPERATING SYSTEM
+      Microsoft Windows 11 Home Single Language, Build 26200
+      Display driver model: WDDM
+
+    CUDA / cuDNN
+      CUDA (PyTorch build)  12.8
+      cuDNN                 9.10.2
+
+    CORE SOFTWARE  (identical in all 14 configs)
+      Python 3.11.14 (conda env "study_torch"), PyTorch 2.10.0+cu128,
+      transformers 5.3.0, peft 0.18.1
+
+    SUPPORTING  [installed-now; NOT captured in run provenance]
+      datasets 4.6.1, bitsandbytes 0.49.2, numpy 2.4.2, pandas 3.0.1,
+      scikit-learn 1.8.0  (computes every accuracy and F1 in the results)
+
+    TRAINING HYPERPARAMETERS
+      LoRA r=32, alpha=64, dropout 0.1, target c_attn/c_proj/c_fc,
+      modules_to_save lm_head+wte, LR 2e-4, 10 epochs, seq len 256,
+      batch 1 x grad-accum 32, fp16=True, gradient checkpointing, seed 42
+      NOT SET, so library defaults applied: warmup_steps 0, warmup_ratio None,
+      weight_decay 0.0, lr_scheduler linear, max_grad_norm 1.0,
+      optim adamw_torch_fused, adam betas 0.9/0.999, eps 1e-8
+      Report these as DEFAULTS, not as tuned choices.
+
+    INFERENCE
+      boost 5.0, top-p (temp 0.8, p 0.92), max_new_tokens 60,
+      repetition_penalty 1.2, full tier-15 lexicon, N=160,
+      judge SamLowe/roberta-base-go_emotions -> Plutchik-8
+
+### FOUR TRAPS in the environment data, do not copy these verbatim
+1. platform reports "Windows-10-10.0.26200-SP0" but the machine is WINDOWS 11. Windows 11
+   still reports a 10.0.x kernel version. systeminfo confirms Windows 11 Build 26200.
+   Write Windows 11. This also matters for the WDDM spillover in the rank sweep.
+2. nvidia-smi shows "CUDA Version: 13.1". That is the DRIVER'S MAXIMUM SUPPORTED runtime,
+   not what ran. The runs used CUDA 12.8 (PyTorch build). Never report 13.1.
+3. cuDNN is stored in configs as the integer 91002, which decodes to 9.10.2
+   (major = v//10000, minor = (v%10000)//100, patch = v%100). Report 9.10.2.
+4. 6.44 GB and 6.00 GiB are the SAME quantity, decimal versus binary. Never write
+   "6.44 GiB", which would be a unit error.
+
+### Provenance gaps to be honest about
+collect_environment() records only python, platform, torch, transformers, peft,
+cuda_available, cuda, cudnn, gpu, vram. It does NOT record the NVIDIA driver, nor
+scikit-learn, numpy, pandas, datasets or bitsandbytes. scikit-learn computes every metric
+in the paper, so its version is an inference from today's install, not a measurement from
+run time. A two-line extension to collect_environment() would close this before ETP3.
+
+## STALE ARTIFACTS: do not hand these off, do not run these
+Checked 2026-09-09. The repo contains several pre-revision leftovers that would put wrong
+numbers into the manuscript.
+
+    results/figures/            <- CURRENT, 300 DPI, the ONLY figures to use
+    ./Fig*.png                  STALE (Aug 13, 4 files, pre-revision)
+    ./files (2)/                STALE duplicate tree, includes an old make_figures.py
+                                that hardcodes accs = [13.12, 47.50, 6.67]
+    results/plots/Figure*.png   STALE (Feb 10, original submission)
+
+Two scripts under the frozen do-not-edit pipeline will regenerate wrong numbers if run:
+  - src/5_evaluation/09_generate_paper_tables.py   hardcodes 6.67% baseline and 47.50%
+  - src/5_evaluation/10_visualize_results.py       hardcodes [6.67, 20.00, 13.12, 47.50]
+                                                   and wrote the stale results/plots/
+DO NOT RUN EITHER. Use src/6_ablations/make_paper_table.py (reads the summary, baseline
+stated once at 10.00%) and make_figures.py.
+
+## FILES FOR WRITING (all relative to the repo root)
+    results/all_configs_summary.csv          14 runs, per-emotion F1, caveat column
+    results/comparisons/final_paper_table.csv 15 rows, regenerated from the summary
+    results/figures/Fig1_Full_Comparison.png  all configs, two manifest groups (hatched)
+    results/figures/Fig2_Confusion_Matrix.png hybrid confusion matrix
+    results/figures/Fig3_PerEmotion_F1.png    baseline vs steered vs hybrid (ORIGINAL manifest)
+    results/figures/Fig3b_PerEmotion_F1_Revision.png  revision-manifest runs only
+    results/figures/Fig4_Beta_Ablation.png    b=1/5/15, all revision manifest
+    results/figures/Fig5_New_Baselines.png    ours vs Phi-3/Qwen/PPLM, all revision manifest
+    results/figures/Fig6_Rank_Sweep.png       rank sweep with noise band shaded
+    experiments/experiment_0XX_*/metrics.json  per-run metrics (14)
+    experiments/experiment_0XX_*/config.yaml   per-run provenance (14)
+    src/5_evaluation/07_evaluate_hybrid.py     Equation 2 (SteeringProcessor, lines 32-52)
+                                               Algorithm 1 (generation loop, lines 98-132)
+Experiment numbering skips 005 and 007: aborted runs, never renumbered.
+
+Equation 2, stated from the source: an additive pre-softmax logit bias, uniform over all
+lexicon token ids, no decay and no context dependence:
+    s'[t] = s[t] + beta * 1[t in T_e],  beta = 5.0
+T_e expands three surface forms per word (bare, leading space, capitalised) and
+de-duplicates, so the bias reaches BPE variants. It is a TOKEN-level bias, not sequence
+level, and the paper should say so.
+
 ## NEXT: writing, no more experiments
 1. Full paper as a FORMATTED DOCUMENT (delivery choice; say so if plain prose is wanted
    instead). Title, abstract, all sections, tables, figure callouts, framed for the
@@ -269,6 +375,32 @@ rank_32 41.25% (7h 25m) and rank_8 35.62% (6h 38m), both on the revision manifes
 steering on, everything except r frozen from the production recipe and checked at runtime
 by verify_training_source(). r64 stopped at step 16 of 760 after measuring 174 s/step;
 r128 not completed. See the NOT FLAT correction and the compute envelope above.
+
+### Latency measured  (DONE 2026-09-08, commit 4460429)
+hybrid 12.37 s/story, PPLM 56.4 re-timed the same session. Ratio about 4.6x. See the
+LATENCY section above, including the correction that hybrid_timed is NOT a third
+noise-floor draw and the nuance that PPLM uses LESS peak VRAM than we do.
+
+### Fig5 corrected  (DONE 2026-09-09, commit 1bae45c)
+Fig5 showed "Ours: Hybrid" at 47.50%, the ORIGINAL fixed-stem number, contradicting the
+manuscript which reports the revision manifest throughout. Root cause was NOT a hardcoded
+value: fig5() read hybrid_results.csv (the original-manifest file) and computed 47.50 from
+it honestly, which is why grepping for a literal 47.5 in make_figures.py found nothing.
+
+Fixed by routing all four bars through a new summary_accuracy() helper that reads
+results/all_configs_summary.csv by config_name, so figure and manuscript share one source
+and cannot diverge again. "Ours: Hybrid" is now rank_32 at 41.25%. The title now names the
+manifest and N, which is newly accurate: previously the "Ours" bar sat on a different
+manifest from the other three bars, silently mixing evaluations.
+
+Fig1 was audited bar by bar and LEFT UNCHANGED BY DESIGN. It shows 47.50 exactly once, in
+the hatched separately labelled original-manifest group next to 10.00 baseline, 13.12
+Large+instruct and 6.67 b=15. That is a labelled historical comparison, not a headline
+claim, and it is correct in context. No other figure contained a stale 47.50.
+
+### Environment verified  (DONE 2026-09-09)
+Full reproducibility block recorded above, read from the system and from all 14 configs,
+with the four unit and version traps documented.
 
 ### Housekeeping  (DONE)
 - Deleted the stale results/comparisons/final_paper_table.csv (Feb 10 artifact carrying
