@@ -47,11 +47,14 @@ Not "rank does not matter (flat sweep)" but:
 
   "LoRA rank has a measurable effect (approximately 5 to 6 points between r8 and r32,
    exceeding the measured retraining noise floor of about 3 points), which is nonetheless
-   small relative to the approximately 27-point effect of steering (11.88% at b=1 versus
-   38 to 41% at b=5). Adapter capacity within the feasible range is a secondary factor;
+   small relative to the 26.24-point effect of steering (11.88% at b=1 versus 38.12% at
+   b=5, same adapter). Adapter capacity within the feasible range is a secondary factor;
    steering is the primary one."
 
-Steering's effect is roughly 5x the rank effect. Rank mattering somewhat does not dent
+CORRECTED 2026-10-01: earlier drafts of this line said "approximately 27 points" and
+"roughly 5x". The exact values from the summary are 38.12 - 11.88 = 26.24 points, and
+26.24 / 5.63 = 4.66x. Fig6 now computes both at draw time. Steering's effect is about
+4.7x the rank effect, not 5x. Rank mattering somewhat does not dent
 "steering dominates". The nuanced version is more credible than the convenient one: a
 reviewer trusts a paper that reports "our own ablation shows rank matters somewhat, but
 less than our main mechanism" far more than one where everything confirms the thesis.

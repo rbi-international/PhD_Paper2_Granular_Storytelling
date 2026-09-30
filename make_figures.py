@@ -31,6 +31,51 @@ def per_emotion_f1(path):
     return {e: f1_score(d["Target"], d["Detected"], labels=[e], average="micro",
                         zero_division=0) for e in EMOTIONS}
 
+
+def summary_accuracy(config_name):
+    """
+    Top-1 accuracy for one config, read from results/all_configs_summary.csv.
+
+    Figures that read the summary cannot drift from the numbers the paper quotes, because
+    both come from the same file. Reading a loose result CSV instead is how Fig5 came to
+    show a stale value: it pointed at hybrid_results.csv (the ORIGINAL fixed-stem manifest,
+    47.50%) while the manuscript reported the revision manifest throughout.
+    """
+    frame = pd.read_csv(os.path.join("results", "all_configs_summary.csv"))
+    row = frame[frame["config_name"] == config_name]
+    if row.empty:
+        raise KeyError(f"{config_name} is not in all_configs_summary.csv")
+    return float(row.iloc[0]["top1_accuracy"])
+
+
+def noise_floor():
+    """
+    Measured retraining noise floor, in accuracy points, COMPUTED from the summary.
+
+    rank_32 and decoding_topp are independent retrainings of ONE configuration, differing
+    only in random init (production never seeded, run_rank_sweep does), so their gap is an
+    empirical estimate of run-to-run variance. Any gap smaller than this is
+    indistinguishable from retraining the same config twice.
+
+    Previously hardcoded as 41.25 - 38.12. Computed now so the band drawn on Fig6 can
+    never disagree with the table.
+    """
+    return summary_accuracy("rank_32") - summary_accuracy("decoding_topp")
+
+
+def steering_delta():
+    """
+    How much accuracy steering buys, in points, COMPUTED from the summary.
+
+    b=1 (beta_1, weak steering) against b=5 (decoding_topp, production strength), both on
+    the revision manifest with the same production adapter, so only the boost differs.
+
+    Previously rendered on Fig6 as the hardcoded phrase "about 27 pts". The true value is
+    38.12 - 11.88 = 26.24, so the old annotation overstated it by about three quarters of
+    a point. It is computed here rather than written out.
+    """
+    return summary_accuracy("decoding_topp") - summary_accuracy("beta_1")
+
 # ----------------------------------------------------------------------
 # FIGURE 1: full-config accuracy bar chart
 # Edit this list as you add new runs. (name, csv_path, color)
@@ -68,11 +113,8 @@ FIG1_NEW_MANIFEST = [
     ("LoRA r32",        "rank_32_results.csv",         "#7030a0"),
 ]
 
-# Measured retraining noise floor, in accuracy points. rank_32 (41.25) and
-# decoding_topp (38.12) are independent retrainings of ONE configuration, differing only
-# in random init, so their gap is an empirical estimate of run-to-run variance. Any gap
-# smaller than this is indistinguishable from retraining the same config twice.
-NOISE_FLOOR = 41.25 - 38.12
+# The noise floor is computed by noise_floor() from the summary, not stored here. It used
+# to be the literal 41.25 - 38.12, which would silently go stale if either run changed.
 
 def fig1():
     old = [(n, acc(p), c) for n, p, c in FIG1_OLD_MANIFEST if os.path.exists(p)]
@@ -237,22 +279,6 @@ def fig4():
     plt.close()
     print("Fig4 saved")
 
-def summary_accuracy(config_name):
-    """
-    Top-1 accuracy for one config, read from results/all_configs_summary.csv.
-
-    Figures that read the summary cannot drift from the numbers the paper quotes, because
-    both come from the same file. Reading a loose result CSV instead is how Fig5 came to
-    show a stale value: it pointed at hybrid_results.csv (the ORIGINAL fixed-stem manifest,
-    47.50%) while the manuscript reported the revision manifest throughout.
-    """
-    frame = pd.read_csv(os.path.join("results", "all_configs_summary.csv"))
-    row = frame[frame["config_name"] == config_name]
-    if row.empty:
-        raise KeyError(f"{config_name} is not in all_configs_summary.csv")
-    return float(row.iloc[0]["top1_accuracy"])
-
-
 def fig5():
     """
     Our method against the newer lightweight and CTG baselines.
@@ -323,9 +349,11 @@ def fig6():
     the noise band so a reader can see for themselves that the gap escapes it, instead of
     taking our word for it.
 
-    The effect is real but SECONDARY. Steering moves accuracy from 11.88 (b=1) to about
-    38 to 41 (b=5), roughly 27 points, which is about 5x the rank effect. That comparison
-    is drawn as a reference bar so the two magnitudes sit in one frame.
+    The effect is real but SECONDARY. Steering moves accuracy from b=1 to b=5 by
+    steering_delta() points (26.24 as measured), roughly 4.7x the rank effect. Both that
+    figure and the noise floor are computed from the summary at draw time rather than
+    written out, so this figure cannot disagree with the results table. The annotation
+    previously read "about 27 pts", which overstated it by about three quarters of a point.
 
     Ranks 64 and 128 are absent for a measured reason, not an oversight: they exceed the
     6GB budget. rank-64 spilled to system memory and ran at 174 s/step against 31 to 39
@@ -341,11 +369,14 @@ def fig6():
         print("Fig6 skipped (need at least two rank CSVs)")
         return
 
+    floor = noise_floor()
+    steer = steering_delta()
+
     fig, ax = plt.subplots(figsize=(8, 6), dpi=300)
     x = np.arange(len(ranks))
 
     # Noise band centred on the first point, so the reader can see the second escape it.
-    ax.axhspan(vals[0] - NOISE_FLOOR / 2, vals[0] + NOISE_FLOOR / 2,
+    ax.axhspan(vals[0] - floor / 2, vals[0] + floor / 2,
                color="#c00000", alpha=0.10, zorder=0)
     ax.axhline(vals[0], ls=":", color="#c00000", lw=1, alpha=0.6, zorder=1)
 
@@ -356,7 +387,7 @@ def fig6():
 
     gap = vals[1] - vals[0]
     ax.annotate(
-        f"{gap:+.1f} pts, clears the\n{NOISE_FLOOR:.1f} pt noise floor",
+        f"{gap:+.1f} pts, clears the\n{floor:.1f} pt noise floor",
         xy=(x[1], vals[1]), xytext=(x[0] + 0.35, vals[0] - 4.5),
         fontsize=9, color="#404040",
         arrowprops=dict(arrowstyle="->", color="#404040", lw=1),
@@ -371,10 +402,11 @@ def fig6():
     ax.set_ylim(min(vals) - 8, max(vals) + 6)
 
     shade = ("shaded band = measured retraining noise floor "
-             f"({NOISE_FLOOR:.2f} pts)\n"
+             f"({floor:.2f} pts)\n"
              "r=64 and r=128 exceed the 6GB budget (r=64 spills to system RAM, "
              "4.4x slower)\n"
-             "for scale: steering alone moves accuracy about 27 pts (b=1 to b=5)")
+             f"for scale: steering alone moves accuracy {steer:.2f} pts "
+             "(b=1 to b=5, same adapter)")
     ax.text(0.02, 0.02, shade, transform=ax.transAxes, fontsize=8,
             color="#404040", va="bottom", ha="left")
 
@@ -385,6 +417,100 @@ def fig6():
     print("Fig6 saved")
 
 
+def fig2b():
+    """
+    Confusion matrix for the HEADLINE run, on the revision manifest.
+
+    Why this exists alongside fig2. fig2 draws hybrid_results.csv, which is the ORIGINAL
+    fixed-stem manifest (all 160 stories begin with the single word "The"). The manuscript
+    reports the revision manifest throughout, so the paper needed a confusion matrix built
+    from the run it actually quotes: rank_32, 41.25%, the production config evaluated on
+    the 160 held-out judge-verified-neutral stems.
+
+    fig2 is deliberately NOT deleted. It remains the correct matrix for the original
+    manifest, and the old submission's numbers are still discussed in the paper.
+
+    Row-normalised and styled to match fig2 so the two are directly comparable.
+    """
+    source = "rank_32_results.csv"
+    if not os.path.exists(source):
+        print("Fig2b skipped (rank_32_results.csv not present)")
+        return
+    d = pd.read_csv(source)
+    order = ["Joy", "Trust", "Fear", "Surprise", "Sadness", "Disgust", "Anger", "Anticipation"]
+    present = [e for e in order if e in set(d["Target"]) | set(d["Detected"])]
+    if "Neutral" in set(d["Detected"]):
+        present = present + ["Neutral"]
+    cm = confusion_matrix(d["Target"], d["Detected"], labels=present).astype(float)
+    cm = np.nan_to_num(cm / cm.sum(axis=1, keepdims=True))
+
+    fig, ax = plt.subplots(figsize=(9, 7.5), dpi=300)
+    sns.heatmap(cm, annot=True, fmt=".2f", cmap="Blues", xticklabels=present,
+                yticklabels=present, cbar_kws={"label": "Row-normalized proportion"},
+                linewidths=0.5, linecolor="gray", ax=ax, vmin=0, vmax=1)
+    ax.set_xlabel("Detected Emotion (RoBERTa Judge)", fontsize=12)
+    ax.set_ylabel("Target Emotion (Prompt)", fontsize=12)
+    ax.set_title("GPT-2 Large + LoRA r32 + Steering (revision manifest)\n"
+                 f"Top-1 accuracy {summary_accuracy('rank_32'):.2f}%, N={len(d)}",
+                 fontsize=13, fontweight="bold", pad=12)
+    plt.xticks(rotation=45, ha="right"); plt.yticks(rotation=0)
+    plt.tight_layout()
+    plt.savefig(f"{OUT}/Fig2b_Confusion_Matrix_Revision.png", dpi=300, bbox_inches="tight")
+    plt.close()
+    print("Fig2b saved (rank_32, revision manifest)")
+
+
+def fig3c():
+    """
+    Per-emotion F1 across the headline run, its weak-steering control, and PPLM.
+
+    Why this exists alongside fig3. fig3 compares evaluation_results_baseline.csv (N=70),
+    steered_results.csv (N=80) and hybrid_results.csv (N=160): all three on the ORIGINAL
+    fixed-stem manifest, and with three DIFFERENT sample sizes, so its bars are not
+    strictly comparable to each other either. It is kept because the paper still discusses
+    the original submission, but the revision needs a like-for-like panel.
+
+    Everything here is N=160 on the revision manifest, so the four series are directly
+    comparable. Every value is computed from the result CSVs by per_emotion_f1(), and the
+    accuracies in the legend come from the summary. Nothing is hardcoded.
+    """
+    series = [
+        ("beta_1",        "Steer b=1 (weak)",   "steered_b1_results.csv",    "#a6a6a6"),
+        ("baseline_pplm", "PPLM (GPT-2 Large)", "baseline_pplm_results.csv", "#ed7d31"),
+        ("decoding_topp", "Ours b=5 (top-p)",   "decoding_topp_results.csv", "#70ad47"),
+        ("rank_32",       "Ours b=5 (headline)", "rank_32_results.csv",      "#c00000"),
+    ]
+    present = []
+    for config_name, label, path, color in series:
+        if not os.path.exists(path):
+            print(f"Fig3c: {path} missing, series omitted")
+            continue
+        acc_pct = summary_accuracy(config_name)
+        present.append((f"{label}, {acc_pct:.2f}%", per_emotion_f1(path), color))
+    if len(present) < 2:
+        print("Fig3c skipped (fewer than two series available)")
+        return
+
+    x = np.arange(len(EMOTIONS))
+    w = 0.8 / len(present)
+    fig, ax = plt.subplots(figsize=(12, 6), dpi=300)
+    for i, (label, scores, color) in enumerate(present):
+        offset = (i - (len(present) - 1) / 2) * w
+        ax.bar(x + offset, [scores[e] for e in EMOTIONS], w, label=label,
+               color=color, edgecolor="black", lw=0.6)
+    ax.set_ylabel("F1-Score", fontsize=12)
+    ax.set_xticks(x); ax.set_xticklabels(EMOTIONS, fontsize=10)
+    ax.set_title("Per-Emotion F1: Steering Strength and the CTG Baseline\n"
+                 "(revision manifest, 20 held-out neutral stems, N=160 throughout)",
+                 fontsize=13, fontweight="bold", pad=12)
+    ax.legend(fontsize=9, frameon=True, ncol=2); ax.set_ylim(0, 0.95)
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+    plt.savefig(f"{OUT}/Fig3c_PerEmotion_F1_Headline.png", dpi=300, bbox_inches="tight")
+    plt.close()
+    print("Fig3c saved (revision manifest, four series)")
+
+
 if __name__ == "__main__":
-    fig1(); fig2(); fig3(); fig3b(); fig4(); fig5(); fig6()
+    fig1(); fig2(); fig2b(); fig3(); fig3b(); fig3c(); fig4(); fig5(); fig6()
     print(f"\nAll figures written to {OUT}/ at 300 DPI.")
